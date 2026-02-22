@@ -1,0 +1,46 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-primary: #0d9b9b;
+  --color-accent: #d4a853;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply font-arabic antialiased;
+}
+
+[dir="ltr"] body {
+  font-family: 'Tajawal', system-ui, sans-serif;
+}
+
+[dir="rtl"] body {
+  font-family: 'Tajawal', 'Noto Kufi Arabic', sans-serif;
+}
+
+/* RTL support */
+[dir="rtl"] .flip-rtl {
+  transform: scaleX(-1);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-100;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-primary-400 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-primary-600;
+}

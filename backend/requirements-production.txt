@@ -1,0 +1,42 @@
+# Production Requirements
+# Core Django & REST
+Django>=5.0
+djangorestframework>=3.14.0
+django-cors-headers==4.3.1
+django-filter>=24.0
+
+# Database
+psycopg2-binary>=2.9.0
+supabase>=2.0.0
+
+# Authentication
+djangorestframework-simplejwt==5.3.1
+PyJWT==2.8.0
+
+# Production Server
+gunicorn>=21.0.0
+whitenoise>=6.6.0
+
+# Payments
+requests==2.31.0
+stripe>=7.0.0
+
+# Communications
+twilio==9.0.4
+python-dotenv==1.0.1
+
+# Email
+django-ses==3.5.2
+sendgrid==6.11.0
+
+# PDF Generation
+reportlab==4.2.0
+
+# Utilities
+python-dateutil==2.8.2
+phonenumbers==8.13.27
+Pillow>=10.0.0
+
+# Security & Monitoring
+sentry-sdk>=1.40.0
+django-anymail>=10.2
