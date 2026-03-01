@@ -32,10 +32,13 @@ if DEBUG:
     # Development hosts
     _default_hosts = 'localhost,127.0.0.1,localhost:3000,localhost:3001,localhost:8000'
 else:
-    # Production: Render, Fly.io, and custom domain
-    _default_hosts = 'ac-and-refrigenerator-repairing-website.onrender.com,.fly.dev,ac-repair-backend.fly.dev'
+    # Production: Fly.io wildcard + custom domain
+    _default_hosts = 'ac-repair-backend.fly.dev,.fly.dev,ac-and-refrigenerator-repairing-website.onrender.com'
 
 ALLOWED_HOSTS = [h.strip() for h in os.getenv('ALLOWED_HOSTS', _default_hosts).split(',') if h.strip()]
+# Always allow fly.dev subdomains (Fly.io health checks use the internal hostname)
+if not DEBUG and '.fly.dev' not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append('.fly.dev')
 
 # Application definition
 INSTALLED_APPS = [
@@ -70,14 +73,31 @@ ROOT_URLCONF = 'config.urls'
 WSGI_APPLICATION = 'config.wsgi.application'
 
 # Database: MongoDB Atlas for Fly.io deployment
+# MONGODB_URI must be set as a Fly secret: flyctl secrets set MONGODB_URI="mongodb+srv://user:password@..."
+# The password must NOT contain angle brackets <> — those are placeholders only.
+_MONGODB_URI = os.getenv('MONGODB_URI', '')
+
+# Detect placeholder (un-replaced) URI and fall back to a clearly-broken one
+# so the error is obvious rather than a silent DatabaseError
+if not _MONGODB_URI or '<' in _MONGODB_URI or '>' in _MONGODB_URI:
+    import warnings
+    warnings.warn(
+        'MONGODB_URI is not set or still contains placeholder <password>. '
+        'Run: flyctl secrets set MONGODB_URI="mongodb+srv://acrepairing21:REALPASSWORD@cluster786.eu651.mongodb.net/ac_refrigeration?retryWrites=true&w=majority&appName=Cluster786"',
+        RuntimeWarning
+    )
+    # Use a clearly invalid URI so the error message is descriptive
+    _MONGODB_URI = 'mongodb+srv://MISSING_URI_SET_FLY_SECRET'
+
 DATABASES = {
     'default': {
         'ENGINE': 'djongo',
         'NAME': 'ac_refrigeration',
-        'ENFORCE_SCHEMA': True,
+        'ENFORCE_SCHEMA': False,  # False avoids strict schema errors with MongoDB
         'CLIENT': {
-            # MONGODB_URI: set in Fly secrets. Use real password (no <>); URL-encode special characters.
-            'host': os.getenv('MONGODB_URI', 'mongodb+srv://acrepairing21:<acrepairing21>@cluster786.eu651.mongodb.net/?appName=Cluster786')
+            'host': _MONGODB_URI,
+            'serverSelectionTimeoutMS': 10000,
+            'connectTimeoutMS': 10000,
         }
     }
 }

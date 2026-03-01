@@ -11,9 +11,12 @@ console_command = '/code/manage.py shell'
 
 [env]
   PORT = '8000'
-  CORS_ORIGINS = 'https://youracrepair.com,https://www.youracrepair.com'
-  CSRF_TRUSTED_ORIGINS = 'https://youracrepair.com,https://www.youracrepair.com'
-  FRONTEND_URL = 'https://www.youracrepair.com'
+  DEBUG = 'False'
+  ALLOWED_HOSTS = 'ac-repair-backend.fly.dev,.fly.dev'
+  # ⚠️ UPDATE these URLs to match your actual Vercel frontend URL
+  CORS_ORIGINS = 'https://ac-and-refrigenerator-repairing-website.vercel.app,https://youracrepair.com,https://www.youracrepair.com'
+  CSRF_TRUSTED_ORIGINS = 'https://ac-and-refrigenerator-repairing-website.vercel.app,https://youracrepair.com,https://www.youracrepair.com'
+  FRONTEND_URL = 'https://ac-and-refrigenerator-repairing-website.vercel.app'
 
 [http_service]
   internal_port = 8000
