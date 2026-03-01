@@ -32,8 +32,8 @@ if DEBUG:
     # Development hosts
     _default_hosts = 'localhost,127.0.0.1,localhost:3000,localhost:3001,localhost:8000'
 else:
-    # Production hosts
-    _default_hosts = 'ac-and-refrigenerator-repairing-website.onrender.com'
+    # Production: Render, Fly.io, and custom domain
+    _default_hosts = 'ac-and-refrigenerator-repairing-website.onrender.com,.fly.dev,ac-repair-backend.fly.dev'
 
 ALLOWED_HOSTS = [h.strip() for h in os.getenv('ALLOWED_HOSTS', _default_hosts).split(',') if h.strip()]
 
@@ -132,40 +132,33 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 20,
 }
 
-# CORS - Production Configuration
+# CORS - read from env so Fly/Render secrets work
+_cors_origins_raw = os.getenv('CORS_ORIGINS', 'https://youracrepair.com,https://www.youracrepair.com')
+CORS_ALLOWED_ORIGINS = [o.strip() for o in _cors_origins_raw.split(',') if o.strip()]
+
 if DEBUG:
-    # Development: Allow all origins
     CORS_ALLOW_ALL_ORIGINS = True
-    CORS_ALLOWED_ORIGINS = []
+    if not CORS_ALLOWED_ORIGINS:
+        CORS_ALLOWED_ORIGINS = ['http://localhost:3000', 'http://localhost:3001', 'http://127.0.0.1:3000']
 else:
-    # Production: Allow only specific origins
     CORS_ALLOW_ALL_ORIGINS = False
-    CORS_ALLOWED_ORIGINS = [
-        'https://youracrepair.com',
-        'https://www.youracrepair.com',
-    ]
-    
-    # Additional CORS settings for production
-    CORS_ALLOW_CREDENTIALS = True
-    CORS_ALLOW_HEADERS = [
-        'accept',
-        'accept-encoding',
-        'authorization',
-        'content-type',
-        'dnt',
-        'origin',
-        'user-agent',
-        'x-csrftoken',
-        'x-requested-with',
-    ]
-    CORS_ALLOW_METHODS = [
-        'DELETE',
-        'GET',
-        'OPTIONS',
-        'PATCH',
-        'POST',
-        'PUT',
-    ]
+    if not CORS_ALLOWED_ORIGINS:
+        CORS_ALLOWED_ORIGINS = ['https://youracrepair.com', 'https://www.youracrepair.com']
+
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
+CORS_ALLOW_METHODS = ['DELETE', 'GET', 'OPTIONS', 'PATCH', 'POST', 'PUT']
+CORS_EXPOSE_HEADERS = ['Content-Type', 'Authorization']
 
 # Business Info (from invoice image)
 COMPANY_NAME_AR = 'للتكييف والتبريد'
