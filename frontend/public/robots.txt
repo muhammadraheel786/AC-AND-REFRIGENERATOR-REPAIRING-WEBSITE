@@ -1,3 +1,18 @@
 User-agent: *
 Allow: /
-Sitemap: https://ac-refrigeration.sa/sitemap.xml
+Disallow: /admin-panel
+Disallow: /my-bookings
+Disallow: /book/status
+
+# Allow all major search engines explicitly
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Yandex
+Allow: /
+
+# Sitemap location
+Sitemap: https://www.youracrepair.com/sitemap.xml
