@@ -21,21 +21,14 @@ class ServiceListSerializer(serializers.ModelSerializer):
     def get_name(self, obj):
         try:
             request = self.context.get('request')
-            if request and hasattr(request, 'query_params'):
-                params = request.query_params
-                lang = params.get('lang', 'en')
-            else:
-                # Fallback to English if no request context
+            lang = 'en'
+            if request and getattr(request, 'query_params', None):
+                lang = request.query_params.get('lang', 'en')
+            if lang not in ('en', 'ar', 'ur'):
                 lang = 'en'
-            
-            # Validate language
-            if lang not in ['en', 'ar', 'ur']:
-                lang = 'en'
-            
-            return obj.get_name(lang)
+            return obj.get_name(lang) or ''
         except Exception:
-            # Ultimate fallback
-            return obj.get_name('en')
+            return getattr(obj, 'name_en', None) or getattr(obj, 'name_ar', '') or ''
 
 
 class InvoiceLineItemSerializer(serializers.ModelSerializer):

@@ -1,3 +1,4 @@
+import logging
 from rest_framework import viewsets, status, permissions
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
@@ -5,6 +6,8 @@ from rest_framework.views import APIView
 from django.http import HttpResponse
 from django.db import connection
 from .models import Service, Booking, InvoiceLineItem
+
+logger = logging.getLogger(__name__)
 from .serializers import (
     ServiceSerializer, ServiceListSerializer, BookingSerializer,
     BookingCreateSerializer, GuestBookingCreateSerializer,
@@ -64,9 +67,8 @@ class ServiceViewSet(viewsets.ModelViewSet):
             return Service.objects.filter(is_active=True).order_by('id')
 
     def list(self, request, *args, **kwargs):
-        """Override list to handle lang parameter properly"""
+        """Override list to handle lang parameter properly. Skip filter_queryset to avoid djongo issues."""
         try:
-            # Validate lang parameter
             lang = request.query_params.get('lang', 'en')
             if lang not in ['en', 'ar', 'ur']:
                 return Response({
@@ -74,27 +76,24 @@ class ServiceViewSet(viewsets.ModelViewSet):
                     'message': 'lang must be one of: en, ar, ur',
                     'received': lang
                 }, status=status.HTTP_400_BAD_REQUEST)
-            
-            # Get queryset
             queryset = self.get_queryset()
-            
-            # Apply filters
-            queryset = self.filter_queryset(queryset)
-            
-            # Paginate
+            # Skip filter_queryset (django-filter can break with djongo)
             page = self.paginate_queryset(queryset)
             if page is not None:
                 serializer = self.get_serializer(page, many=True)
                 return self.get_paginated_response(serializer.data)
-            
-            # Serialize without pagination
-            serializer = self.get_serializer(queryset, many=True)
+            # Evaluate to list to avoid djongo queryset iteration issues
+            items = list(queryset)
+            serializer = self.get_serializer(items, many=True)
             return Response(serializer.data)
-            
         except Exception as e:
+            import traceback
+            logger.exception('Services list failed')
+            msg = str(e).strip() or repr(e) or type(e).__name__
             return Response({
                 'error': 'Internal server error',
-                'message': str(e),
+                'message': msg,
+                'exception_type': type(e).__name__,
                 'debug_info': {
                     'lang': request.query_params.get('lang', 'en'),
                     'method': request.method,

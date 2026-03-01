@@ -29,7 +29,8 @@ class Service(models.Model):
         return self.name_en
 
     def get_name(self, lang='ar'):
-        return getattr(self, f'name_{lang}', self.name_ar)
+        val = getattr(self, f'name_{lang}', None) or getattr(self, 'name_ar', None)
+        return val if val is not None else ''
 
 
 class Booking(models.Model):
