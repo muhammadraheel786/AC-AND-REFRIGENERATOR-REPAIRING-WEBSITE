@@ -12,40 +12,12 @@ def get_content(data, lang='ar'):
 
 
 def send_whatsapp(recipient_phone, content_ar, content_en='', template_type='booking_confirmation'):
-    """WhatsApp Business API - uses Meta Graph API or Twilio WhatsApp."""
-    
-    # Try Twilio WhatsApp first (easier setup)
-    twilio_sid = getattr(settings, 'TWILIO_ACCOUNT_SID', '') or ''
-    twilio_token = getattr(settings, 'TWILIO_AUTH_TOKEN', '') or ''
-    twilio_number = getattr(settings, 'TWILIO_SMS_NUMBER', '') or ''
-    
-    if twilio_sid and twilio_token and twilio_number:
-        phone = str(recipient_phone).replace('+', '').replace(' ', '')
-        if not phone.startswith('966') and not phone.startswith('92'):
-            phone = '966' + phone.lstrip('0')
-        
-        try:
-            from twilio.rest import Client
-            client = Client(twilio_sid, twilio_token)
-            
-            # Use Arabic content by default for Saudi customers
-            message = content_ar if content_ar else content_en
-            
-            client.messages.create(
-                body=message,
-                from_=twilio_number,
-                to=f"whatsapp:+{phone}"
-            )
-            return {'success': True}
-        except Exception as e:
-            return {'success': False, 'error': f'Twilio WhatsApp error: {str(e)}'}
-    
-    # Fallback to Meta WhatsApp Business API
+    """WhatsApp Business API - uses Meta Graph API only."""
     token = getattr(settings, 'WHATSAPP_ACCESS_TOKEN', '') or ''
     phone_id = getattr(settings, 'WHATSAPP_PHONE_ID', '') or ''
 
     if not token or not phone_id:
-        return {'success': False, 'error': 'WhatsApp not configured (neither Twilio nor Meta available)'}
+        return {'success': False, 'error': 'WhatsApp not configured'}
 
     phone = str(recipient_phone).replace('+', '').replace(' ', '')
     if not phone.startswith('966'):
@@ -81,7 +53,7 @@ def send_whatsapp(recipient_phone, content_ar, content_en='', template_type='boo
 
 def send_sms_saudi(phone, message):
     """
-    Saudi SMS: Taqnyat or Unifonic.
+    Saudi SMS: Taqnyat or Unifonic only.
     Taqnyat: https://taqnyat.sa
     Unifonic: https://www.unifonic.com
     """
@@ -116,26 +88,12 @@ def send_sms_saudi(phone, message):
                     "AppSid": app_sid,
                     "Recipient": str(phone),
                     "Body": message,
+                    "From": sender, # Unifonic uses 'From' for sender
                 },
                 timeout=10,
             )
             if r.status_code == 200:
                 return {'success': True}
-        except Exception:
-            pass
-
-    # Twilio fallback (works in Saudi with proper number)
-    tid = getattr(settings, 'TWILIO_ACCOUNT_SID', '') or ''
-    if tid:
-        try:
-            from twilio.rest import Client
-            client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
-            client.messages.create(
-                body=message,
-                from_=settings.TWILIO_SMS_NUMBER,
-                to=str(phone),
-            )
-            return {'success': True}
         except Exception:
             pass
 

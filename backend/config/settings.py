@@ -69,11 +69,15 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'config.urls'
 WSGI_APPLICATION = 'config.wsgi.application'
 
-# Database: SQLite for production deployment
+# Database: MongoDB Atlas for production deployment
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'djongo',
+        'NAME': 'ac_refrigeration',
+        'ENFORCE_SCHEMA': True,
+        'CLIENT': {
+            'host': os.getenv('MONGODB_URI', 'mongodb+srv://username:password@cluster.mongodb.net/ac_refrigeration?retryWrites=true&w=majority')
+        }
     }
 }
 
@@ -183,11 +187,6 @@ WHATSAPP_ACCESS_TOKEN = os.getenv('WHATSAPP_ACCESS_TOKEN', '')
 TAQNYAT_API_KEY = os.getenv('TAQNYAT_API_KEY', '')
 TAQNYAT_SENDER = os.getenv('TAQNYAT_SENDER', 'ACRefrigeration')
 UNIFONIC_APP_SID = os.getenv('UNIFONIC_APP_SID', '')
-
-# Twilio fallback
-TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID', '')
-TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN', '')
-TWILIO_SMS_NUMBER = os.getenv('TWILIO_SMS_NUMBER', '')
 
 # Email
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
