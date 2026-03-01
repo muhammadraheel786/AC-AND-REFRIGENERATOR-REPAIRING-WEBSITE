@@ -7,20 +7,28 @@ import Contact from './pages/Contact'
 import Login from './pages/Login'
 import MyBookings from './pages/MyBookings'
 import BookingStatus from './pages/BookingStatus'
+import AdminPanel from './pages/AdminPanel'
 
 function App() {
   return (
-    <Layout>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/services" element={<Services />} />
-        <Route path="/book" element={<Book />} />
-        <Route path="/book/status" element={<BookingStatus />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/my-bookings" element={<MyBookings />} />
-      </Routes>
-    </Layout>
+    <Routes>
+      {/* Admin panel - full page, no public layout */}
+      <Route path="/admin-panel/*" element={<AdminPanel />} />
+      {/* Public site with shared Layout */}
+      <Route path="/*" element={
+        <Layout>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/services" element={<Services />} />
+            <Route path="/book" element={<Book />} />
+            <Route path="/book/status" element={<BookingStatus />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/my-bookings" element={<MyBookings />} />
+          </Routes>
+        </Layout>
+      } />
+    </Routes>
   )
 }
 
