@@ -51,18 +51,27 @@ def generate_invoice_pdf(booking, line_items=None):
     inv_num = booking.invoice_number or get_invoice_number(booking)
     if not booking.invoice_number:
         booking.invoice_number = inv_num
-        booking.save(update_fields=['invoice_number'])
+        try:
+            booking.save(update_fields=['invoice_number'])
+        except Exception:
+            pass  # proxy objects from pymongo fallback cannot be saved via ORM
     c.setFont("Helvetica", 10)
     c.drawString(50, y, f"No. {inv_num}")
     y -= 14
 
-    date_str = formats.date_format(booking.scheduled_date, "SHORT_DATE_FORMAT")
+    try:
+        date_str = formats.date_format(booking.scheduled_date, "SHORT_DATE_FORMAT")
+    except Exception:
+        date_str = str(booking.scheduled_date) if booking.scheduled_date else '-'
     c.drawString(50, y, f"Date: {date_str}")
     c.drawString(200, y, f"Time: {booking.scheduled_time or '-'}")
     y -= 22
 
     customer = booking.customer
-    customer_name = customer.get_full_name() or customer.username or '-'
+    try:
+        customer_name = customer.get_full_name() or getattr(customer, 'username', None) or '-'
+    except Exception:
+        customer_name = getattr(customer, 'username', 'Guest')
     phone = getattr(customer, 'phone', '') or getattr(customer, 'whatsapp', '') or '-'
     email = getattr(customer, 'email', '') or '-'
     if not email or email.endswith('@guest.local'):

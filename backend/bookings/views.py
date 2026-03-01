@@ -177,6 +177,55 @@ class BookingViewSet(viewsets.ModelViewSet):
         booking = serializer.save(customer=self.request.user)
         _notify_booking_created(booking)
 
+    def _list_bookings_via_pymongo(self, user_id, is_admin=False):
+        """Fetch bookings directly from MongoDB for when Djongo ORM fails."""
+        try:
+            from pymongo import MongoClient
+            db_config = settings.DATABASES['default']
+            uri = db_config.get('CLIENT', {}).get('host') or ''
+            db_name = db_config.get('NAME', 'ac_refrigeration')
+            client = MongoClient(uri, serverSelectionTimeoutMS=10000)
+            db = client[db_name]
+            query = {} if is_admin else {'customer_id': user_id}
+            docs = list(db['bookings_booking'].find(query).sort('created_at', -1).limit(100))
+            # Map service names from service collection
+            service_cache = {}
+            result = []
+            for doc in docs:
+                sid = doc.get('service_id')
+                if sid and sid not in service_cache:
+                    svc = db['bookings_service'].find_one({'id': sid}) or {}
+                    service_cache[sid] = svc.get('name_en') or svc.get('name_ar') or str(sid)
+                result.append({
+                    'id': doc.get('id'),
+                    'invoice_number': doc.get('invoice_number', ''),
+                    'service_name': service_cache.get(sid, '-'),
+                    'scheduled_date': doc.get('scheduled_date', ''),
+                    'scheduled_time': doc.get('scheduled_time', ''),
+                    'status': doc.get('status', 'pending'),
+                    'payment_status': doc.get('payment_status', 'pending'),
+                    'total_price': str(doc.get('total_price', '0')),
+                    'address_street': doc.get('address_street', ''),
+                    'address_city': doc.get('address_city', ''),
+                    'notes': doc.get('notes', ''),
+                    'created_at': str(doc.get('created_at', '')),
+                })
+            return result
+        except Exception as e:
+            logger.exception('pymongo booking list fallback failed: %s', e)
+            return None
+
+    def list(self, request, *args, **kwargs):
+        try:
+            return super().list(request, *args, **kwargs)
+        except Exception as e:
+            logger.warning('Djongo booking list failed, trying pymongo fallback: %s', type(e).__name__)
+            is_admin = getattr(request.user, 'role', None) == 'admin'
+            result = self._list_bookings_via_pymongo(request.user.pk, is_admin)
+            if result is not None:
+                return Response(result)
+            return Response({'error': 'Failed to load bookings'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
     def _create_booking_via_pymongo(self, validated_data, user):
         """Fallback: write booking to MongoDB directly with pymongo when djongo fails."""
         try:
@@ -284,13 +333,89 @@ class BookingViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['get'], url_path='invoice')
     def invoice(self, request, pk=None):
         """Download invoice PDF for a booking."""
-        booking = self.get_object()
-        if booking.customer != request.user and getattr(request.user, 'role', None) != 'admin':
-            return Response({'error': 'Forbidden'}, status=status.HTTP_403_FORBIDDEN)
-        pdf = generate_invoice_pdf(booking)
-        response = HttpResponse(pdf.read(), content_type='application/pdf')
-        response['Content-Disposition'] = f'attachment; filename="invoice-{booking.id}.pdf"'
-        return response
+        try:
+            booking = self.get_object()
+            if booking.customer != request.user and getattr(request.user, 'role', None) != 'admin':
+                return Response({'error': 'Forbidden'}, status=status.HTTP_403_FORBIDDEN)
+            pdf = generate_invoice_pdf(booking)
+            response = HttpResponse(pdf.read(), content_type='application/pdf')
+            response['Content-Disposition'] = f'attachment; filename="invoice-{booking.id}.pdf"'
+            return response
+        except Exception as e:
+            logger.warning('Djongo invoice failed, trying pymongo fallback: %s', type(e).__name__)
+            return self._invoice_via_pymongo(request, pk)
+
+    def _invoice_via_pymongo(self, request, pk):
+        """Generate invoice PDF directly from MongoDB when Djongo ORM fails."""
+        try:
+            from pymongo import MongoClient
+            from io import BytesIO
+            db_config = settings.DATABASES['default']
+            uri = db_config.get('CLIENT', {}).get('host') or ''
+            db_name = db_config.get('NAME', 'ac_refrigeration')
+            client = MongoClient(uri, serverSelectionTimeoutMS=10000)
+            db = client[db_name]
+            # Try integer id first, fallback to ObjectId string
+            try:
+                doc = db['bookings_booking'].find_one({'id': int(pk)})
+            except Exception:
+                doc = db['bookings_booking'].find_one({'_id': pk})
+            if not doc:
+                return Response({'error': 'Booking not found'}, status=404)
+            # Security: Only owner or admin can download
+            user_id = request.user.pk
+            is_admin = getattr(request.user, 'role', None) == 'admin'
+            if not is_admin and doc.get('customer_id') != user_id:
+                return Response({'error': 'Forbidden'}, status=403)
+            # Fetch service name
+            sid = doc.get('service_id')
+            svc = db['bookings_service'].find_one({'id': sid}) or {}
+            service_name = svc.get('name_en') or svc.get('name_ar') or 'Service'
+            # Fetch customer info
+            cid = doc.get('customer_id')
+            cust = db['core_user'].find_one({'id': cid}) or {}
+            cust_name = (cust.get('first_name', '') + ' ' + cust.get('last_name', '')).strip() or cust.get('username', 'Guest')
+            phone = cust.get('phone', '') or cust.get('whatsapp', '') or '-'
+            email = cust.get('email', '') or ''
+            if not email or email.endswith('@guest.local'):
+                email = '-'
+            # Build minimal booking proxy object for generate_invoice_pdf
+            class BookingProxy:
+                id = doc.get('id')
+                invoice_number = doc.get('invoice_number', '')
+                scheduled_date = doc.get('scheduled_date', '')
+                scheduled_time = doc.get('scheduled_time', '')
+                address_street = doc.get('address_street', '')
+                address_city = doc.get('address_city', 'Dammam')
+                notes = doc.get('notes', '')
+                total_price = doc.get('total_price', '0')
+                class line_items:
+                    @staticmethod
+                    def all(): return []
+                class service:
+                    name_en = service_name
+                    name_ar = service_name
+                class customer:
+                    pass
+            BookingProxy.customer.get_full_name = lambda self=None: cust_name
+            BookingProxy.customer.username = cust.get('username', 'guest')
+            BookingProxy.customer.phone = phone
+            BookingProxy.customer.whatsapp = phone
+            BookingProxy.customer.email = email
+            from .invoice import generate_invoice_pdf
+            from django.utils.dateparse import parse_date
+            # Convert string date to date object if needed
+            try:
+                BookingProxy.scheduled_date = parse_date(str(doc.get('scheduled_date', ''))) or doc.get('scheduled_date', '')
+            except Exception:
+                pass
+            pdf = generate_invoice_pdf(BookingProxy())
+            resp = HttpResponse(pdf.read(), content_type='application/pdf')
+            resp['Content-Disposition'] = f'attachment; filename="invoice-{BookingProxy.id}.pdf"'
+            return resp
+        except Exception as e:
+            logger.exception('pymongo invoice fallback failed: %s', e)
+            return Response({'error': 'Invoice generation failed', 'detail': str(e)}, status=500)
 
 
 
