@@ -242,20 +242,42 @@ class BookingViewSet(viewsets.ModelViewSet):
             return None
 
     def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
         try:
-            booking = serializer.save(customer=request.user)
-            _notify_booking_created(booking)
-            output = BookingSerializer(booking, context={'request': request})
-            return Response(output.data, status=status.HTTP_201_CREATED)
-        except Exception as e:
-            logger.warning('djongo booking create failed, trying pymongo fallback: %s', type(e).__name__)
-            result = self._create_booking_via_pymongo(serializer.validated_data, request.user)
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            try:
+                booking = serializer.save(customer=request.user)
+                _notify_booking_created(booking)
+                output = BookingSerializer(booking, context={'request': request})
+                return Response(output.data, status=status.HTTP_201_CREATED)
+            except Exception as e:
+                logger.warning('djongo booking create failed, trying pymongo fallback: %s', type(e).__name__)
+                result = self._create_booking_via_pymongo(serializer.validated_data, request.user)
+                if result:
+                    return Response(result, status=status.HTTP_201_CREATED)
+                return Response(
+                    {'error': 'Booking failed', 'message': 'Database error creating booking. Please try again.'},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
+        except Exception as outside_err:
+            import traceback
+            logger.exception('Auth booking crashed before fallback: %s', outside_err)
+            raw_data = request.data
+            fallback_data = {
+                'service': Service(pk=raw_data.get('service_id')),
+                'scheduled_date': raw_data.get('scheduled_date', ''),
+                'scheduled_time': raw_data.get('scheduled_time', ''),
+                'address_street': raw_data.get('address_street', ''),
+                'address_city': raw_data.get('address_city', 'Dammam'),
+                'address_lat': raw_data.get('address_lat'),
+                'address_lng': raw_data.get('address_lng'),
+                'notes': raw_data.get('notes', ''),
+            }
+            result = self._create_booking_via_pymongo(fallback_data, request.user)
             if result:
                 return Response(result, status=status.HTTP_201_CREATED)
             return Response(
-                {'error': 'Booking failed', 'message': 'Database error creating booking. Please try again.'},
+                {'error': 'Severe DB Error', 'detail': str(outside_err), 'trace': traceback.format_exc()},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
@@ -401,27 +423,58 @@ class GuestBookingCreateView(APIView):
             return None
 
     def post(self, request):
-        serializer = GuestBookingCreateSerializer(data=request.data)
-        if not serializer.is_valid():
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         try:
-            booking = serializer.save()
-            _notify_booking_created(booking)
-            from rest_framework_simplejwt.tokens import RefreshToken
-            refresh = RefreshToken.for_user(booking.customer)
-            return Response({
-                'id': booking.id,
-                'total_price': str(booking.total_price),
-                'invoice_number': booking.invoice_number or '',
-                'token': str(refresh.access_token),
-                'refresh': str(refresh),
-            }, status=status.HTTP_201_CREATED)
-        except Exception as e:
-            logger.warning('djongo guest booking create failed, trying pymongo fallback: %s', type(e).__name__)
-            result = self._create_guest_booking_via_pymongo(serializer.validated_data)
+            serializer = GuestBookingCreateSerializer(data=request.data)
+            if not serializer.is_valid():
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            try:
+                booking = serializer.save()
+                _notify_booking_created(booking)
+                from rest_framework_simplejwt.tokens import RefreshToken
+                refresh = RefreshToken.for_user(booking.customer)
+                return Response({
+                    'id': booking.id,
+                    'total_price': str(booking.total_price),
+                    'invoice_number': booking.invoice_number or '',
+                    'token': str(refresh.access_token),
+                    'refresh': str(refresh),
+                }, status=status.HTTP_201_CREATED)
+            except Exception as e:
+                logger.warning('djongo guest booking create failed, trying pymongo fallback: %s', type(e).__name__)
+                result = self._create_guest_booking_via_pymongo(serializer.validated_data)
+                if result:
+                    return Response(result, status=status.HTTP_201_CREATED)
+                return Response(
+                    {'error': 'Booking failed', 'message': 'Could not save booking via fallback. Please call.'},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
+        except Exception as outside_err:
+            # If Djongo crashes during is_valid() (e.g., PrimaryKeyRelatedField lookup)
+            import traceback
+            logger.exception('Guest booking crashed before fallback: %s', outside_err)
+            
+            # Since validation failed, we have to construct validated_data manually to try the fallback anyway
+            raw_data = request.data
+            fallback_data = {
+                'service': Service(pk=raw_data.get('service_id')), # Dummy service object for fallback
+                'customer_name': raw_data.get('customer_name', 'Guest'),
+                'phone': raw_data.get('phone', ''),
+                'whatsapp': raw_data.get('whatsapp', ''),
+                'email': raw_data.get('email', ''),
+                'scheduled_date': raw_data.get('scheduled_date', ''),
+                'scheduled_time': raw_data.get('scheduled_time', ''),
+                'address_street': raw_data.get('address_street', ''),
+                'address_city': raw_data.get('address_city', 'Dammam'),
+                'address_lat': raw_data.get('address_lat'),
+                'address_lng': raw_data.get('address_lng'),
+                'notes': raw_data.get('notes', ''),
+            }
+            # Manually trigger fallback since serializer validation crashed Djongo
+            result = self._create_guest_booking_via_pymongo(fallback_data)
             if result:
                 return Response(result, status=status.HTTP_201_CREATED)
+                
             return Response(
-                {'error': 'Booking failed', 'message': 'Could not save booking. Please try logging in first or contact us by phone.'},
+                {'error': 'Severe DB Error', 'detail': str(outside_err), 'trace': traceback.format_exc()},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )

@@ -1,0 +1,100 @@
+﻿[2m2026-03-01T15:12:26Z[0m proxy[e2861d13c61758] [32miad[0m [[34minfo[0m][2mrequest.url=[0m"force://172.19.9.18:8000/" Starting machine
+[2m2026-03-01T15:12:26Z[0m app[e2861d13c61758] [32miad[0m [[34minfo[0m]2026-03-01T15:12:26.919538265 [01KJMY96VZ058R5Y4MGZKN08FN:main] Running Firecracker v1.12.1
+[2m2026-03-01T15:12:26Z[0m app[e2861d13c61758] [32miad[0m [[34minfo[0m]2026-03-01T15:12:26.927396144 [01KJMY96VZ058R5Y4MGZKN08FN:main] Listening on API socket ("/fc.sock").
+[2m2026-03-01T15:12:27Z[0m app[e2861d13c61758] [32miad[0m [[34minfo[0m][32m INFO[0m Starting init (commit: 350f2667)...
+[2m2026-03-01T15:12:27Z[0m app[e2861d13c61758] [32miad[0m [[34minfo[0m][32m INFO[0m starting statics vsock server
+[2m2026-03-01T15:12:27Z[0m app[e2861d13c61758] [32miad[0m [[34minfo[0m][32m INFO[0m Preparing to run: `sh -c python manage.py migrate --noinput 2>/dev/null || true && gunicorn config.wsgi:application --bind 0.0.0.0:${PORT:-8000} --workers 2 --threads 2 --timeout 60` as root
+[2m2026-03-01T15:12:27Z[0m app[e2861d13c61758] [32miad[0m [[34minfo[0m][32m INFO[0m [fly api proxy] listening at /.fly/api
+[2m2026-03-01T15:12:28Z[0m runner[e2861d13c61758] [32miad[0m [[34minfo[0m]Machine started in 1.112s
+[2m2026-03-01T15:12:28Z[0m proxy[e2861d13c61758] [32miad[0m [[34minfo[0m]machine started in 1.232269825s
+[2m2026-03-01T15:12:28Z[0m app[e2861d13c61758] [32miad[0m [[34minfo[0m]2026/03/01 15:12:28 INFO SSH listening listen_address=[fdaa:4b:c96b:a7b:697:997:d5dd:2]:22
+[2m2026-03-01T15:12:33Z[0m app[e2861d13c61758] [32miad[0m [[34minfo[0m]Operations to perform:
+[2m2026-03-01T15:12:33Z[0m app[e2861d13c61758] [32miad[0m [[34minfo[0m]  Apply all migrations: admin, auth, bookings, contenttypes, core, notifications, payments, sessions
+[2m2026-03-01T15:12:33Z[0m app[e2861d13c61758] [32miad[0m [[34minfo[0m]Running migrations:
+[2m2026-03-01T15:12:33Z[0m app[e2861d13c61758] [32miad[0m [[34minfo[0m]  No migrations to apply.
+[2m2026-03-01T15:12:33Z[0m proxy[e2861d13c61758] [32miad[0m [[34minfo[0m]waiting for machine to be reachable on 0.0.0.0:8000 (waited 5.383850446s so far)
+[2m2026-03-01T15:12:33Z[0m proxy[e2861d13c61758] [32miad[0m [[34minfo[0m]waiting for machine to be reachable on 0.0.0.0:8000 (waited 5.615753269s so far)
+[2merror.message=[0m"failed to connect to machine: gave up after 15 attempts (in 8.394225057s)" [2m2026-03-01T15:12:36Z[0m proxy[e2861d13c61758] [32miad[0m [[31merror[0m]
+[2m2026-03-01T15:12:36Z[0m proxy[e7846435a50098] [32miad[0m [[34minfo[0m][2mrequest.url=[0m"force://172.19.1.74:8000/" Starting machine
+[2m2026-03-01T15:12:36Z[0m app[e7846435a50098] [32miad[0m [[34minfo[0m]2026-03-01T15:12:36.622619506 [01KJMY9SMGE2FXKF7THCJQK38V:main] Running Firecracker v1.12.1
+[2m2026-03-01T15:12:36Z[0m app[e7846435a50098] [32miad[0m [[34minfo[0m]2026-03-01T15:12:36.622869384 [01KJMY9SMGE2FXKF7THCJQK38V:main] Listening on API socket ("/fc.sock").
+[2merror.message=[0m"failed to connect to machine: gave up after 15 attempts (in 8.627517063s)" [2m2026-03-01T15:12:36Z[0m proxy[e2861d13c61758] [32miad[0m [[31merror[0m]
+[2m2026-03-01T15:12:37Z[0m app[e7846435a50098] [32miad[0m [[34minfo[0m][32m INFO[0m Starting init (commit: 350f2667)...
+[2m2026-03-01T15:12:37Z[0m app[e7846435a50098] [32miad[0m [[34minfo[0m][32m INFO[0m starting statics vsock server
+[2m2026-03-01T15:12:37Z[0m app[e7846435a50098] [32miad[0m [[34minfo[0m][32m INFO[0m Preparing to run: `sh -c python manage.py migrate --noinput 2>/dev/null || true && gunicorn config.wsgi:application --bind 0.0.0.0:${PORT:-8000} --workers 2 --threads 2 --timeout 60` as root
+[2m2026-03-01T15:12:37Z[0m app[e7846435a50098] [32miad[0m [[34minfo[0m][32m INFO[0m [fly api proxy] listening at /.fly/api
+[2m2026-03-01T15:12:37Z[0m runner[e7846435a50098] [32miad[0m [[34minfo[0m]Machine started in 1.362s
+[2m2026-03-01T15:12:37Z[0m proxy[e7846435a50098] [32miad[0m [[34minfo[0m]machine started in 1.504030553s
+[2m2026-03-01T15:12:38Z[0m app[e7846435a50098] [32miad[0m [[34minfo[0m]2026/03/01 15:12:38 INFO SSH listening listen_address=[fdaa:4b:c96b:a7b:68f:ea0e:81ad:2]:22
+[2m2026-03-01T15:12:43Z[0m app[e7846435a50098] [32miad[0m [[34minfo[0m]Operations to perform:
+[2m2026-03-01T15:12:43Z[0m app[e7846435a50098] [32miad[0m [[34minfo[0m]  Apply all migrations: admin, auth, bookings, contenttypes, core, notifications, payments, sessions
+[2m2026-03-01T15:12:43Z[0m app[e7846435a50098] [32miad[0m [[34minfo[0m]Running migrations:
+[2m2026-03-01T15:12:43Z[0m app[e7846435a50098] [32miad[0m [[34minfo[0m]  No migrations to apply.
+[2m2026-03-01T15:12:43Z[0m app[e2861d13c61758] [32miad[0m [[34minfo[0m][2026-03-01 15:12:43 +0000] [667] [INFO] Starting gunicorn 25.1.0
+[2m2026-03-01T15:12:43Z[0m app[e2861d13c61758] [32miad[0m [[34minfo[0m][2026-03-01 15:12:43 +0000] [667] [INFO] Listening at: http://0.0.0.0:8000 (667)
+[2m2026-03-01T15:12:43Z[0m app[e2861d13c61758] [32miad[0m [[34minfo[0m][2026-03-01 15:12:43 +0000] [667] [INFO] Using worker: gthread
+[2m2026-03-01T15:12:43Z[0m app[e2861d13c61758] [32miad[0m [[34minfo[0m][2026-03-01 15:12:43 +0000] [667] [INFO] Control socket listening at /code/gunicorn.ctl
+[2m2026-03-01T15:12:43Z[0m app[e2861d13c61758] [32miad[0m [[34minfo[0m][2026-03-01 15:12:43 +0000] [669] [INFO] Booting worker with pid: 669
+[2m2026-03-01T15:12:43Z[0m proxy[e7846435a50098] [32miad[0m [[34minfo[0m]waiting for machine to be reachable on 0.0.0.0:8000 (waited 5.398976576s so far)
+[2m2026-03-01T15:12:43Z[0m app[e2861d13c61758] [32miad[0m [[34minfo[0m][2026-03-01 15:12:43 +0000] [670] [INFO] Booting worker with pid: 670
+[2m2026-03-01T15:12:43Z[0m proxy[e7846435a50098] [32miad[0m [[34minfo[0m]waiting for machine to be reachable on 0.0.0.0:8000 (waited 5.582804344s so far)
+[2merror.message=[0m"could not find a good candidate within 2 attempts at load balancing. last error: [PM05] failed to connect to machine: gave up after 15 attempts (in 8.407094809s)" [2m2026-03-01T15:12:46Z[0m proxy[e7846435a50098] [32miad[0m [[31merror[0m][2mrequest.url=[0m"http://worker-cf-iad2-1452/api/auth/settings/" 
+[2merror.message=[0m"could not find a good candidate within 2 attempts at load balancing. last error: [PM05] failed to connect to machine: gave up after 15 attempts (in 8.600357985s)" [2m2026-03-01T15:12:46Z[0m proxy[e7846435a50098] [32miad[0m [[31merror[0m][2mrequest.url=[0m"http://worker-cf-iad2-1452/api/auth/settings/" 
+[2m2026-03-01T15:12:52Z[0m app[e7846435a50098] [32miad[0m [[34minfo[0m][2026-03-01 15:12:52 +0000] [665] [INFO] Starting gunicorn 25.1.0
+[2m2026-03-01T15:12:52Z[0m app[e7846435a50098] [32miad[0m [[34minfo[0m][2026-03-01 15:12:52 +0000] [665] [INFO] Listening at: http://0.0.0.0:8000 (665)
+[2m2026-03-01T15:12:52Z[0m app[e7846435a50098] [32miad[0m [[34minfo[0m][2026-03-01 15:12:52 +0000] [665] [INFO] Using worker: gthread
+[2m2026-03-01T15:12:52Z[0m app[e7846435a50098] [32miad[0m [[34minfo[0m][2026-03-01 15:12:52 +0000] [665] [INFO] Control socket listening at /code/gunicorn.ctl
+[2m2026-03-01T15:12:52Z[0m app[e7846435a50098] [32miad[0m [[34minfo[0m][2026-03-01 15:12:52 +0000] [667] [INFO] Booting worker with pid: 667
+[2m2026-03-01T15:12:52Z[0m app[e7846435a50098] [32miad[0m [[34minfo[0m][2026-03-01 15:12:52 +0000] [668] [INFO] Booting worker with pid: 668
+[2m2026-03-01T15:13:13Z[0m runner[e7846435a50098] [32miad[0m [[34minfo[0m]Pulling container image registry.fly.io/ac-repair-backend@sha256:83e537b8e0cc6431863325f43cdbfc9fad8e9a6dee9b7b9dbc51ecfcd5e9604f
+[2m2026-03-01T15:13:13Z[0m runner[e7846435a50098] [32miad[0m [[34minfo[0m]Successfully prepared image registry.fly.io/ac-repair-backend@sha256:83e537b8e0cc6431863325f43cdbfc9fad8e9a6dee9b7b9dbc51ecfcd5e9604f (763.65115ms)
+[2m2026-03-01T15:13:14Z[0m runner[e7846435a50098] [32miad[0m [[34minfo[0m]Configuring firecracker
+[2m2026-03-01T15:13:14Z[0m app[e7846435a50098] [32miad[0m [[34minfo[0m][32m INFO[0m Sending signal SIGINT to main child process w/ PID 648
+[2m2026-03-01T15:13:18Z[0m app[e7846435a50098] [32miad[0m [[34minfo[0m][32m INFO[0m Sending signal SIGTERM to main child process w/ PID 648
+[2m2026-03-01T15:13:18Z[0m app[e7846435a50098] [32miad[0m [[34minfo[0m][32m INFO[0m Main child exited with signal (with signal 'SIGTERM', core dumped? false)
+[2m2026-03-01T15:13:18Z[0m app[e7846435a50098] [32miad[0m [[34minfo[0m][32m INFO[0m Starting clean up.
+[2m2026-03-01T15:13:18Z[0m app[e7846435a50098] [32miad[0m [[34minfo[0m][   42.132784] reboot: Restarting system
+[2m2026-03-01T15:13:19Z[0m app[e7846435a50098] [32miad[0m [[34minfo[0m]2026-03-01T15:13:19.805006157 [01KJMZBVSSTBFCHS00MAC3RK9W:main] Running Firecracker v1.12.1
+[2m2026-03-01T15:13:19Z[0m app[e7846435a50098] [32miad[0m [[34minfo[0m]2026-03-01T15:13:19.805178871 [01KJMZBVSSTBFCHS00MAC3RK9W:main] Listening on API socket ("/fc.sock").
+[2m2026-03-01T15:13:20Z[0m app[e7846435a50098] [32miad[0m [[34minfo[0m][32m INFO[0m Starting init (commit: 350f2667)...
+[2m2026-03-01T15:13:20Z[0m app[e7846435a50098] [32miad[0m [[34minfo[0m][32m INFO[0m starting statics vsock server
+[2m2026-03-01T15:13:20Z[0m app[e7846435a50098] [32miad[0m [[34minfo[0m][32m INFO[0m Preparing to run: `sh -c python manage.py migrate --noinput 2>/dev/null || true && gunicorn config.wsgi:application --bind 0.0.0.0:${PORT:-8000} --workers 2 --threads 2 --timeout 60` as root
+[2m2026-03-01T15:13:21Z[0m app[e7846435a50098] [32miad[0m [[34minfo[0m][32m INFO[0m [fly api proxy] listening at /.fly/api
+[2m2026-03-01T15:13:21Z[0m runner[e7846435a50098] [32miad[0m [[34minfo[0m]Machine created and started in 7.904s
+[2m2026-03-01T15:13:21Z[0m app[e7846435a50098] [32miad[0m [[34minfo[0m]2026/03/01 15:13:21 INFO SSH listening listen_address=[fdaa:4b:c96b:a7b:68f:ea0e:81ad:2]:22
+[2m2026-03-01T15:13:26Z[0m app[e7846435a50098] [32miad[0m [[34minfo[0m]Operations to perform:
+[2m2026-03-01T15:13:26Z[0m app[e7846435a50098] [32miad[0m [[34minfo[0m]  Apply all migrations: admin, auth, bookings, contenttypes, core, notifications, payments, sessions
+[2m2026-03-01T15:13:26Z[0m app[e7846435a50098] [32miad[0m [[34minfo[0m]Running migrations:
+[2m2026-03-01T15:13:26Z[0m app[e7846435a50098] [32miad[0m [[34minfo[0m]  No migrations to apply.
+[2m2026-03-01T15:13:34Z[0m runner[e2861d13c61758] [32miad[0m [[34minfo[0m]Pulling container image registry.fly.io/ac-repair-backend@sha256:83e537b8e0cc6431863325f43cdbfc9fad8e9a6dee9b7b9dbc51ecfcd5e9604f
+[2m2026-03-01T15:13:34Z[0m runner[e2861d13c61758] [32miad[0m [[34minfo[0m]Successfully prepared image registry.fly.io/ac-repair-backend@sha256:83e537b8e0cc6431863325f43cdbfc9fad8e9a6dee9b7b9dbc51ecfcd5e9604f (445.65433ms)
+[2m2026-03-01T15:13:35Z[0m runner[e2861d13c61758] [32miad[0m [[34minfo[0m]Configuring firecracker
+[2m2026-03-01T15:13:35Z[0m app[e2861d13c61758] [32miad[0m [[34minfo[0m][32m INFO[0m Sending signal SIGINT to main child process w/ PID 647
+[2m2026-03-01T15:13:36Z[0m app[e7846435a50098] [32miad[0m [[34minfo[0m][2026-03-01 15:13:36 +0000] [666] [INFO] Starting gunicorn 25.1.0
+[2m2026-03-01T15:13:36Z[0m app[e7846435a50098] [32miad[0m [[34minfo[0m][2026-03-01 15:13:36 +0000] [666] [INFO] Listening at: http://0.0.0.0:8000 (666)
+[2m2026-03-01T15:13:36Z[0m app[e7846435a50098] [32miad[0m [[34minfo[0m][2026-03-01 15:13:36 +0000] [666] [INFO] Using worker: gthread
+[2m2026-03-01T15:13:36Z[0m app[e7846435a50098] [32miad[0m [[34minfo[0m][2026-03-01 15:13:36 +0000] [668] [INFO] Booting worker with pid: 668
+[2m2026-03-01T15:13:36Z[0m app[e7846435a50098] [32miad[0m [[34minfo[0m][2026-03-01 15:13:36 +0000] [666] [INFO] Control socket listening at /code/gunicorn.ctl
+[2m2026-03-01T15:13:36Z[0m app[e7846435a50098] [32miad[0m [[34minfo[0m][2026-03-01 15:13:36 +0000] [669] [INFO] Booting worker with pid: 669
+[2m2026-03-01T15:13:39Z[0m app[e2861d13c61758] [32miad[0m [[34minfo[0m][32m INFO[0m Sending signal SIGTERM to main child process w/ PID 647
+[2m2026-03-01T15:13:40Z[0m app[e2861d13c61758] [32miad[0m [[34minfo[0m][32m INFO[0m Main child exited with signal (with signal 'SIGTERM', core dumped? false)
+[2m2026-03-01T15:13:40Z[0m app[e2861d13c61758] [32miad[0m [[34minfo[0m][32m INFO[0m Starting clean up.
+[2m2026-03-01T15:13:40Z[0m app[e2861d13c61758] [32miad[0m [[34minfo[0m][   73.060006] reboot: Restarting system
+[2m2026-03-01T15:13:40Z[0m app[e2861d13c61758] [32miad[0m [[34minfo[0m]2026-03-01T15:13:40.630311552 [01KJMZCG3J6GXVJ5PYH27P0GH6:main] Running Firecracker v1.12.1
+[2m2026-03-01T15:13:40Z[0m app[e2861d13c61758] [32miad[0m [[34minfo[0m]2026-03-01T15:13:40.630433086 [01KJMZCG3J6GXVJ5PYH27P0GH6:main] Listening on API socket ("/fc.sock").
+[2m2026-03-01T15:13:41Z[0m app[e2861d13c61758] [32miad[0m [[34minfo[0m][32m INFO[0m Starting init (commit: 350f2667)...
+[2m2026-03-01T15:13:41Z[0m app[e2861d13c61758] [32miad[0m [[34minfo[0m][32m INFO[0m starting statics vsock server
+[2m2026-03-01T15:13:41Z[0m app[e2861d13c61758] [32miad[0m [[34minfo[0m][32m INFO[0m Preparing to run: `sh -c python manage.py migrate --noinput 2>/dev/null || true && gunicorn config.wsgi:application --bind 0.0.0.0:${PORT:-8000} --workers 2 --threads 2 --timeout 60` as root
+[2m2026-03-01T15:13:41Z[0m app[e2861d13c61758] [32miad[0m [[34minfo[0m][32m INFO[0m [fly api proxy] listening at /.fly/api
+[2m2026-03-01T15:13:41Z[0m runner[e2861d13c61758] [32miad[0m [[34minfo[0m]Machine created and started in 7.439s
+[2m2026-03-01T15:13:41Z[0m app[e2861d13c61758] [32miad[0m [[34minfo[0m]2026/03/01 15:13:41 INFO SSH listening listen_address=[fdaa:4b:c96b:a7b:697:997:d5dd:2]:22
+[2m2026-03-01T15:13:46Z[0m app[e2861d13c61758] [32miad[0m [[34minfo[0m]Operations to perform:
+[2m2026-03-01T15:13:46Z[0m app[e2861d13c61758] [32miad[0m [[34minfo[0m]  Apply all migrations: admin, auth, bookings, contenttypes, core, notifications, payments, sessions
+[2m2026-03-01T15:13:46Z[0m app[e2861d13c61758] [32miad[0m [[34minfo[0m]Running migrations:
+[2m2026-03-01T15:13:46Z[0m app[e2861d13c61758] [32miad[0m [[34minfo[0m]  No migrations to apply.
+[2m2026-03-01T15:13:55Z[0m app[e2861d13c61758] [32miad[0m [[34minfo[0m][2026-03-01 15:13:55 +0000] [667] [INFO] Starting gunicorn 25.1.0
+[2m2026-03-01T15:13:55Z[0m app[e2861d13c61758] [32miad[0m [[34minfo[0m][2026-03-01 15:13:55 +0000] [667] [INFO] Listening at: http://0.0.0.0:8000 (667)
+[2m2026-03-01T15:13:55Z[0m app[e2861d13c61758] [32miad[0m [[34minfo[0m][2026-03-01 15:13:55 +0000] [667] [INFO] Using worker: gthread
+[2m2026-03-01T15:13:56Z[0m app[e2861d13c61758] [32miad[0m [[34minfo[0m][2026-03-01 15:13:56 +0000] [667] [INFO] Control socket listening at /code/gunicorn.ctl
+[2m2026-03-01T15:13:56Z[0m app[e2861d13c61758] [32miad[0m [[34minfo[0m][2026-03-01 15:13:56 +0000] [669] [INFO] Booting worker with pid: 669
+[2m2026-03-01T15:13:56Z[0m app[e2861d13c61758] [32miad[0m [[34minfo[0m][2026-03-01 15:13:56 +0000] [670] [INFO] Booting worker with pid: 670
