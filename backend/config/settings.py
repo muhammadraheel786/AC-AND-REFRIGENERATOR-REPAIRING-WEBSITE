@@ -54,13 +54,29 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'config.urls'
 WSGI_APPLICATION = 'config.wsgi.application'
 
-# Database: SQLite for production (Supabase DNS issues)
+# Database: FORCE SQLite for production deployment
+# Ignore all environment variables and use SQLite
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+# Explicitly disable any database environment variables
+# This prevents Django from trying to use environment variables
+import os
+os.environ.pop('DATABASE_URL', None)
+os.environ.pop('SUPABASE_DB_HOST', None)
+os.environ.pop('SUPABASE_DB_NAME', None)
+os.environ.pop('SUPABASE_DB_USER', None)
+os.environ.pop('SUPABASE_DB_PASSWORD', None)
+os.environ.pop('SUPABASE_DB_PORT', None)
+os.environ.pop('SUPABASE_POOLER_HOST', None)
+os.environ.pop('PG_HOST', None)
+os.environ.pop('PG_NAME', None)
+os.environ.pop('PG_PASSWORD', None)
+os.environ.pop('PG_PORT', None)
 
 # Password hashing
 AUTH_PASSWORD_HASHERS = [
