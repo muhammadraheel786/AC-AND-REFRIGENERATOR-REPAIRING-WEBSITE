@@ -51,26 +51,43 @@ class ServiceViewSet(viewsets.ModelViewSet):
                     'received': lang
                 }, status=status.HTTP_400_BAD_REQUEST)
             
-            # Get queryset
-            queryset = self.get_queryset()
+            # Simple test response first
+            return Response({
+                'message': 'Services endpoint working',
+                'lang': lang,
+                'debug': True,
+                'test_services': [
+                    {'id': 1, 'name': 'AC Repair', 'category': 'repair'},
+                    {'id': 2, 'name': 'AC Installation', 'category': 'installation'}
+                ]
+            })
             
-            # Apply filters
-            queryset = self.filter_queryset(queryset)
-            
-            # Paginate
-            page = self.paginate_queryset(queryset)
-            if page is not None:
-                serializer = self.get_serializer(page, many=True)
-                return self.get_paginated_response(serializer.data)
-            
-            # Serialize without pagination
-            serializer = self.get_serializer(queryset, many=True)
-            return Response(serializer.data)
+            # TODO: Uncomment after fixing database
+            # # Get queryset
+            # queryset = self.get_queryset()
+            # 
+            # # Apply filters
+            # queryset = self.filter_queryset(queryset)
+            # 
+            # # Paginate
+            # page = self.paginate_queryset(queryset)
+            # if page is not None:
+            #     serializer = self.get_serializer(page, many=True)
+            #     return self.get_paginated_response(serializer.data)
+            # 
+            # # Serialize without pagination
+            # serializer = self.get_serializer(queryset, many=True)
+            # return Response(serializer.data)
             
         except Exception as e:
             return Response({
                 'error': 'Internal server error',
-                'message': str(e)
+                'message': str(e),
+                'debug_info': {
+                    'lang': request.query_params.get('lang', 'en'),
+                    'method': request.method,
+                    'path': request.path
+                }
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
