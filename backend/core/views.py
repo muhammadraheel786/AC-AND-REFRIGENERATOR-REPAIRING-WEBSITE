@@ -8,6 +8,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from .serializers import UserRegisterSerializer, UserSerializer, SiteSettingsSerializer
 from .models import SiteSettings
 from django.contrib.auth import get_user_model
+from django.conf import settings
 
 User = get_user_model()
 
@@ -47,5 +48,42 @@ class SiteSettingsView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request):
-        s = SiteSettings.get()
-        return Response(SiteSettingsSerializer(s).data)
+        try:
+            s = SiteSettings.get()
+            return Response(SiteSettingsSerializer(s).data)
+        except Exception as e:
+            # Return default settings if database is not ready
+            return Response({
+                'company_name_ar': 'للتكييف والتبريد',
+                'company_name_en': 'A/C & Refrigeration',
+                'phone': '0582618038',
+                'whatsapp': '0582618038',
+                'email': '',
+                'address_ar': 'الصناعية - الدمام، المملكة العربية السعودية',
+                'address_en': 'Al-Dieya - Dammam, Kingdom of Saudi Arabia',
+                'services_line_ar': 'إصلاح المكيفات والثلاجات والغسالات أفران - برودة - مركزي وسبليت',
+                'services_line_en': 'Repairing AC - Refrigerator, Washing Machine - Split - Central A/C',
+                'footer_text_ar': 'جميع الحقوق محفوظة',
+                'footer_text_en': 'All rights reserved'
+            }, status=status.HTTP_200_OK)
+
+
+class HealthCheckView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        """Health check endpoint to debug deployment issues"""
+        try:
+            from django.db import connection
+            with connection.cursor() as cursor:
+                cursor.execute("SELECT 1")
+                db_status = "connected"
+        except Exception as e:
+            db_status = f"error: {str(e)}"
+        
+        return Response({
+            'status': 'healthy',
+            'database': db_status,
+            'debug_mode': settings.DEBUG,
+            'environment': 'production' if not settings.DEBUG else 'development'
+        })
