@@ -10,9 +10,16 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'dev-secret-change-in-production')
-DEBUG = os.getenv('DEBUG', 'True') == 'True'
-# Dev: allow Host with port when frontend proxies to backend (e.g. Host: localhost:3001)
-_default_hosts = 'localhost,127.0.0.1,localhost:3000,localhost:3001,localhost:8000'
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
+
+# Production: Allow only specific hosts
+if DEBUG:
+    # Development hosts
+    _default_hosts = 'localhost,127.0.0.1,localhost:3000,localhost:3001,localhost:8000'
+else:
+    # Production hosts
+    _default_hosts = 'ac-and-refrigenerator-repairing-website.onrender.com'
+
 ALLOWED_HOSTS = [h.strip() for h in os.getenv('ALLOWED_HOSTS', _default_hosts).split(',') if h.strip()]
 
 # Application definition
@@ -153,9 +160,40 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 20,
 }
 
-# CORS
-CORS_ALLOW_ALL_ORIGINS = DEBUG
-CORS_ALLOWED_ORIGINS = [o.strip() for o in os.getenv('CORS_ORIGINS', 'http://localhost:3000,http://localhost:3001').split(',') if o.strip()]
+# CORS - Production Configuration
+if DEBUG:
+    # Development: Allow all origins
+    CORS_ALLOW_ALL_ORIGINS = True
+    CORS_ALLOWED_ORIGINS = []
+else:
+    # Production: Allow only specific origins
+    CORS_ALLOW_ALL_ORIGINS = False
+    CORS_ALLOWED_ORIGINS = [
+        'https://youracrepair.com',
+        'https://www.youracrepair.com',
+    ]
+    
+    # Additional CORS settings for production
+    CORS_ALLOW_CREDENTIALS = True
+    CORS_ALLOW_HEADERS = [
+        'accept',
+        'accept-encoding',
+        'authorization',
+        'content-type',
+        'dnt',
+        'origin',
+        'user-agent',
+        'x-csrftoken',
+        'x-requested-with',
+    ]
+    CORS_ALLOW_METHODS = [
+        'DELETE',
+        'GET',
+        'OPTIONS',
+        'PATCH',
+        'POST',
+        'PUT',
+    ]
 
 # Business Info (from invoice image)
 COMPANY_NAME_AR = 'للتكييف والتبريد'
@@ -196,17 +234,42 @@ DEFAULT_FROM_EMAIL = os.getenv('SMTP_FROM', 'noreply@ac-refrigeration.sa')
 GOOGLE_MAPS_API_KEY = os.getenv('GOOGLE_MAPS_API_KEY', '')
 
 # Frontend URL (for payment redirect)
-FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:3000')
+FRONTEND_URL = os.getenv('FRONTEND_URL', 'https://youracrepair.com')
+
+# Production Security Settings
+if not DEBUG:
+    # HTTPS and security headers for production
+    SECURE_SSL_REDIRECT = True
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    SECURE_HSTS_SECONDS = 31536000  # 1 year
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    X_FRAME_OPTIONS = 'DENY'
+    
+    # Session and CSRF security
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SESSION_COOKIE_HTTPONLY = True
+    CSRF_COOKIE_HTTPONLY = True
+    
+    # Update CSRF trusted origins for production
+    CSRF_TRUSTED_ORIGINS = [
+        'https://youracrepair.com',
+        'https://www.youracrepair.com',
+    ]
+else:
+    # Development settings
+    CSRF_TRUSTED_ORIGINS = [
+        'http://localhost:3000',
+        'http://localhost:3001',
+    ]
 
 # Production security (when DEBUG=False)
 if not DEBUG:
     if SECRET_KEY == 'dev-secret-change-in-production':
         raise ValueError('DJANGO_SECRET_KEY must be set in production')
-
-    SECURE_SSL_REDIRECT = os.getenv('SECURE_SSL_REDIRECT', 'True') == 'True'
-    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
     SESSION_COOKIE_SAMESITE = 'Lax'
     CSRF_COOKIE_SAMESITE = 'Lax'
     SECURE_BROWSER_XSS_FILTER = True
