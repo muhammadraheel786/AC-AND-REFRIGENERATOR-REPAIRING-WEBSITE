@@ -102,6 +102,7 @@ elif os.getenv('PG_PASSWORD'):
         }
     }
 else:
+    # Fallback to SQLite for production deployment
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
