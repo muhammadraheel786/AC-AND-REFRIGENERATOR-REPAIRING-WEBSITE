@@ -1,0 +1,34 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+env
+venv
+ENV
+env.bak
+venv.bak
+
+# IDE
+.vscode
+.idea
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project
+*.log
+*.sqlite3
+db.sqlite3
+media/
+staticfiles/
+
+# Fly.io
+fly.toml
+flyctl-generated.toml

@@ -69,15 +69,18 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'config.urls'
 WSGI_APPLICATION = 'config.wsgi.application'
 
-# Database: MongoDB Atlas for production deployment
+# Database: PostgreSQL on Fly.io (built-in, reliable)
 DATABASES = {
     'default': {
-        'ENGINE': 'djongo',
-        'NAME': 'ac_refrigeration',
-        'ENFORCE_SCHEMA': True,
-        'CLIENT': {
-            'host': os.getenv('MONGODB_URI', 'mongodb+srv://acrepairing21:<acrepairing21>@cluster786.eu651.mongodb.net/?appName=Cluster786')
-        }
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('DB_NAME', 'ac_refrigeration'),
+        'USER': os.getenv('DB_USER', 'postgres'),
+        'PASSWORD': os.getenv('DB_PASSWORD', ''),
+        'HOST': os.getenv('DB_HOST', 'localhost'),
+        'PORT': os.getenv('DB_PORT', '5432'),
+        'OPTIONS': {
+            'sslmode': 'require',
+        },
     }
 }
 
