@@ -1,10 +1,11 @@
 import logging
+from django.db import connection, utils as db_utils
+from django.conf import settings
 from rest_framework import viewsets, status, permissions
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.http import HttpResponse
-from django.db import connection
 from .models import Service, Booking, InvoiceLineItem
 
 logger = logging.getLogger(__name__)
@@ -43,7 +44,7 @@ def health_view(request):
 
 
 class ServiceViewSet(viewsets.ModelViewSet):
-    queryset = Service.objects.filter(is_active=True).order_by('id')
+    queryset = Service.objects.filter(is_active=True)
     filterset_fields = ['category']
     pagination_class = None  # Avoid pagination .count() issues with djongo/MongoDB
 
@@ -60,45 +61,90 @@ class ServiceViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         try:
             if self.request.user.is_authenticated and getattr(self.request.user, 'role', None) == 'admin':
-                return Service.objects.all().order_by('id')
-            return Service.objects.filter(is_active=True).order_by('id')
+                return Service.objects.all()
+            return Service.objects.filter(is_active=True)
         except Exception:
-            # Fallback if request context is not available
-            return Service.objects.filter(is_active=True).order_by('id')
+            return Service.objects.filter(is_active=True)
+
+    def _services_list_via_pymongo(self, request, lang):
+        """Fallback: read services from MongoDB with pymongo when djongo raises DatabaseError."""
+        try:
+            from pymongo import MongoClient
+            db_config = settings.DATABASES['default']
+            uri = db_config.get('CLIENT', {}).get('host') or ''
+            db_name = db_config.get('NAME', 'ac_refrigeration')
+            if not uri:
+                return None
+            client = MongoClient(uri)
+            db = client[db_name]
+            coll_name = Service._meta.db_table
+            coll = db[coll_name]
+            cursor = coll.find({'is_active': True}).sort('_id', 1)
+            out = []
+            for doc in cursor:
+                pk = doc.get('id', doc.get('_id'))
+                if hasattr(pk, '__str__') and not isinstance(pk, (int, float)):
+                    pk = str(pk)
+                name_key = f'name_{lang}' if lang in ('ar', 'en', 'ur') else 'name_en'
+                name = doc.get(name_key) or doc.get('name_en') or doc.get('name_ar') or ''
+                base = doc.get('base_price', 0)
+                duration = doc.get('duration_hours', 1)
+                if hasattr(base, '__float__'):
+                    base = float(base)
+                if hasattr(duration, '__float__'):
+                    duration = float(duration)
+                out.append({
+                    'id': pk,
+                    'name': name or '',
+                    'category': doc.get('category', ''),
+                    'base_price': str(base),
+                    'duration_hours': str(duration),
+                    'image': doc.get('image') or '',
+                })
+            return out
+        except Exception as e:
+            logger.warning('pymongo services fallback failed: %s', e)
+            return None
 
     def list(self, request, *args, **kwargs):
-        """Override list to handle lang parameter properly. Skip filter_queryset to avoid djongo issues."""
+        """List services. Use pymongo fallback if djongo raises DatabaseError."""
+        lang = request.query_params.get('lang', 'en')
+        if lang not in ['en', 'ar', 'ur']:
+            return Response({
+                'error': 'Invalid language parameter',
+                'message': 'lang must be one of: en, ar, ur',
+                'received': lang
+            }, status=status.HTTP_400_BAD_REQUEST)
         try:
-            lang = request.query_params.get('lang', 'en')
-            if lang not in ['en', 'ar', 'ur']:
-                return Response({
-                    'error': 'Invalid language parameter',
-                    'message': 'lang must be one of: en, ar, ur',
-                    'received': lang
-                }, status=status.HTTP_400_BAD_REQUEST)
+            # Minimal queryset: no order_by to avoid djongo DatabaseError
             queryset = self.get_queryset()
-            # Skip filter_queryset (django-filter can break with djongo)
             page = self.paginate_queryset(queryset)
             if page is not None:
                 serializer = self.get_serializer(page, many=True)
                 return self.get_paginated_response(serializer.data)
-            # Evaluate to list to avoid djongo queryset iteration issues
             items = list(queryset)
             serializer = self.get_serializer(items, many=True)
             return Response(serializer.data)
+        except db_utils.DatabaseError:
+            # Djongo DatabaseError (e.g. order_by/filter conversion): use raw pymongo
+            payload = self._services_list_via_pymongo(request, lang)
+            if payload is not None:
+                return Response(payload)
+            logger.exception('Services list failed')
+            return Response({
+                'error': 'Internal server error',
+                'message': 'DatabaseError when listing services; pymongo fallback failed',
+                'exception_type': 'DatabaseError',
+                'debug_info': {'lang': lang, 'method': request.method, 'path': request.path}
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as e:
-            import traceback
             logger.exception('Services list failed')
             msg = str(e).strip() or repr(e) or type(e).__name__
             return Response({
                 'error': 'Internal server error',
                 'message': msg,
                 'exception_type': type(e).__name__,
-                'debug_info': {
-                    'lang': request.query_params.get('lang', 'en'),
-                    'method': request.method,
-                    'path': request.path
-                }
+                'debug_info': {'lang': lang, 'method': request.method, 'path': request.path}
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
