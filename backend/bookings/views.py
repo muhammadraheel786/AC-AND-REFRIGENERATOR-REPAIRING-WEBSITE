@@ -1,5 +1,5 @@
 import logging
-from django.db import connection, utils as db_utils
+from django.db import utils as db_utils
 from django.conf import settings
 from rest_framework import viewsets, status, permissions
 from rest_framework.decorators import action, api_view, permission_classes
@@ -26,21 +26,31 @@ def _notify_booking_created(booking):
 def health_view(request):
     """Health check: verifies app and MongoDB connection. Use for debugging 500s."""
     try:
-        connection.ensure_connection()
-        # Quick read to confirm DB is usable
-        Service.objects.exists()
-        return Response({'status': 'ok', 'database': 'connected'}, status=status.HTTP_200_OK)
+        from pymongo import MongoClient
+        db_config = settings.DATABASES['default']
+        uri = db_config.get('CLIENT', {}).get('host') or ''
+        db_name = db_config.get('NAME', 'ac_refrigeration')
+        client = MongoClient(uri, serverSelectionTimeoutMS=5000)
+        # Actually ping the server
+        client.admin.command('ping')
+        # Try a simple count on services
+        count = client[db_name]['bookings_service'].count_documents({})
+        return Response({
+            'status': 'ok',
+            'database': 'connected',
+            'services_count': count
+        }, status=status.HTTP_200_OK)
     except Exception as e:
         err = str(e)
-        # Avoid leaking connection details
         if 'password' in err.lower() or '@' in err or 'mongodb' in err.lower():
-            msg = 'Database connection failed (check MONGODB_URI and Atlas Network Access)'
+            msg = 'Database connection failed (check MONGODB_URI and Atlas Network Access whitelist)'
         else:
             msg = err[:200]
         return Response(
             {'status': 'error', 'database': 'failed', 'message': msg},
             status=status.HTTP_503_SERVICE_UNAVAILABLE
         )
+
 
 
 class ServiceViewSet(viewsets.ModelViewSet):
