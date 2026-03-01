@@ -195,8 +195,8 @@ class BookingViewSet(viewsets.ModelViewSet):
             service_id = service.pk if hasattr(service, 'pk') else int(service)
 
             # Get next booking id (auto-increment style)
-            counter = db['bookings_booking'].find_one(sort=[('id', -1)]) or {}
-            next_id = (counter.get('id') or 0) + 1
+            counter = db['bookings_booking'].find_one(sort=[('id', -1)])
+            next_id = (counter.get('id') or 0 if counter else 0) + 1
 
             # Generate invoice number
             invoice_number = f"INV-{next_id:06d}"
@@ -249,8 +249,8 @@ class BookingViewSet(viewsets.ModelViewSet):
             _notify_booking_created(booking)
             output = BookingSerializer(booking, context={'request': request})
             return Response(output.data, status=status.HTTP_201_CREATED)
-        except db_utils.DatabaseError as e:
-            logger.warning('djongo booking create failed, trying pymongo fallback: %s', e)
+        except Exception as e:
+            logger.warning('djongo booking create failed, trying pymongo fallback: %s', type(e).__name__)
             result = self._create_booking_via_pymongo(serializer.validated_data, request.user)
             if result:
                 return Response(result, status=status.HTTP_201_CREATED)
@@ -307,7 +307,7 @@ class GuestBookingCreateView(APIView):
             if not user_doc:
                 # Get next user ID safely
                 user_counter = db['core_user'].find_one(sort=[('id', -1)])
-                new_user_id = (user_counter.get('id') if user_counter else 0) + 1
+                new_user_id = (user_counter.get('id') or 0 if user_counter else 0) + 1
                 
                 user_doc = {
                     'id': new_user_id,
@@ -328,9 +328,15 @@ class GuestBookingCreateView(APIView):
                 db['core_user'].insert_one(user_doc)
             else:
                 new_user_id = user_doc.get('id')
+                if new_user_id is None:
+                    user_counter = db['core_user'].find_one(sort=[('id', -1)])
+                    new_user_id = (user_counter.get('id') or 0 if user_counter else 0) + 1
+                    user_doc['id'] = new_user_id
+
                 db['core_user'].update_one(
                     {'_id': user_doc['_id']},
                     {'$set': {
+                        'id': new_user_id,
                         'first_name': customer_name[:30],
                         'phone': phone,
                         'whatsapp': whatsapp,
@@ -340,7 +346,7 @@ class GuestBookingCreateView(APIView):
 
             # Get next booking ID
             booking_counter = db['bookings_booking'].find_one(sort=[('id', -1)])
-            next_booking_id = (booking_counter.get('id') if booking_counter else 0) + 1
+            next_booking_id = (booking_counter.get('id') or 0 if booking_counter else 0) + 1
             invoice_number = f"INV-{next_booking_id:06d}"
 
             lat = validated_data.get('address_lat')
@@ -410,8 +416,8 @@ class GuestBookingCreateView(APIView):
                 'token': str(refresh.access_token),
                 'refresh': str(refresh),
             }, status=status.HTTP_201_CREATED)
-        except db_utils.DatabaseError as e:
-            logger.warning('djongo guest booking create failed, trying pymongo fallback: %s', e)
+        except Exception as e:
+            logger.warning('djongo guest booking create failed, trying pymongo fallback: %s', type(e).__name__)
             result = self._create_guest_booking_via_pymongo(serializer.validated_data)
             if result:
                 return Response(result, status=status.HTTP_201_CREATED)
