@@ -31,9 +31,47 @@ class ServiceViewSet(viewsets.ModelViewSet):
         return [permissions.IsAdminUser()]
 
     def get_queryset(self):
-        if self.request.user.is_authenticated and getattr(self.request.user, 'role', None) == 'admin':
-            return Service.objects.all().order_by('id')
-        return Service.objects.filter(is_active=True).order_by('id')
+        try:
+            if self.request.user.is_authenticated and getattr(self.request.user, 'role', None) == 'admin':
+                return Service.objects.all().order_by('id')
+            return Service.objects.filter(is_active=True).order_by('id')
+        except Exception:
+            # Fallback if request context is not available
+            return Service.objects.filter(is_active=True).order_by('id')
+
+    def list(self, request, *args, **kwargs):
+        """Override list to handle lang parameter properly"""
+        try:
+            # Validate lang parameter
+            lang = request.query_params.get('lang', 'en')
+            if lang not in ['en', 'ar', 'ur']:
+                return Response({
+                    'error': 'Invalid language parameter',
+                    'message': 'lang must be one of: en, ar, ur',
+                    'received': lang
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Get queryset
+            queryset = self.get_queryset()
+            
+            # Apply filters
+            queryset = self.filter_queryset(queryset)
+            
+            # Paginate
+            page = self.paginate_queryset(queryset)
+            if page is not None:
+                serializer = self.get_serializer(page, many=True)
+                return self.get_paginated_response(serializer.data)
+            
+            # Serialize without pagination
+            serializer = self.get_serializer(queryset, many=True)
+            return Response(serializer.data)
+            
+        except Exception as e:
+            return Response({
+                'error': 'Internal server error',
+                'message': str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class BookingViewSet(viewsets.ModelViewSet):
