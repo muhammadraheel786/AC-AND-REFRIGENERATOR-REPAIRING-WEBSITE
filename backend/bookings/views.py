@@ -12,12 +12,8 @@ from .invoice import generate_invoice_pdf
 
 
 def _notify_booking_created(booking):
-    try:
-        from notifications.services import notify_booking_confirmed, notify_admin_new_order
-        notify_booking_confirmed(booking, booking.customer)
-        notify_admin_new_order(booking)
-    except Exception:
-        pass
+    # Notifications temporarily disabled for deployment
+    pass
 
 
 class ServiceViewSet(viewsets.ModelViewSet):
