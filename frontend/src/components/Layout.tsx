@@ -15,7 +15,7 @@ export default function Layout({ children }: { children: ReactNode }) {
   useEffect(() => {
     const updateAuth = () => setIsLoggedIn(!!localStorage.getItem('token'))
     updateAuth()
-    api.get('/api/auth/settings/').then((r) => setSite(r.data)).catch(() => {})
+    api.get('/api/auth/settings/').then((r) => setSite(r.data)).catch(() => { })
     const onToast = (event: Event) => {
       const custom = event as CustomEvent<{ message: string; type?: 'success' | 'error' | 'info' }>
       const message = custom.detail?.message
@@ -56,13 +56,12 @@ export default function Layout({ children }: { children: ReactNode }) {
         {toasts.map((toast) => (
           <div
             key={toast.id}
-            className={`pointer-events-auto rounded-lg px-4 py-3 shadow-lg border text-sm ${
-              toast.type === 'success'
+            className={`pointer-events-auto rounded-lg px-4 py-3 shadow-lg border text-sm ${toast.type === 'success'
                 ? 'bg-green-50 text-green-800 border-green-200'
                 : toast.type === 'error'
                   ? 'bg-red-50 text-red-800 border-red-200'
                   : 'bg-blue-50 text-blue-800 border-blue-200'
-            }`}
+              }`}
           >
             {toast.message}
           </div>
@@ -105,37 +104,70 @@ export default function Layout({ children }: { children: ReactNode }) {
             </nav>
 
             <button
-              className="md:hidden p-2"
+              className="md:hidden p-2 rounded-md hover:bg-gray-100 transition"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label="Toggle menu"
             >
               {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
           </div>
+        </div>
 
-          {mobileMenuOpen && (
-            <nav className="md:hidden py-4 border-t flex flex-col gap-3">
+        {/* Mobile dropdown — sits BELOW the header bar, outside the header's inner container */}
+        {mobileMenuOpen && (
+          <div className="md:hidden absolute top-full left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50">
+            <nav className="max-w-7xl mx-auto px-4 py-4 flex flex-col gap-1">
               {navItems.map((item) => (
-                <Link key={item.to} to={item.to} onClick={() => setMobileMenuOpen(false)}>
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block px-3 py-3 rounded-lg text-gray-700 font-medium hover:bg-gray-50 hover:text-primary-600 transition"
+                >
                   {item.label}
                 </Link>
               ))}
-              {isLoggedIn && <Link to="/my-bookings" onClick={() => setMobileMenuOpen(false)}>{t('nav.myBookings')}</Link>}
-              <LanguageSwitcher />
-              {isLoggedIn ? (
-                <button onClick={() => { handleLogout(); setMobileMenuOpen(false); }} className="flex items-center gap-2 text-red-600">
-                  <LogOut size={18} />
-                  {t('nav.logout')}
-                </button>
-              ) : (
-                <Link to="/login" onClick={() => setMobileMenuOpen(false)}>{t('nav.login')}</Link>
+              {isLoggedIn && (
+                <Link
+                  to="/my-bookings"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block px-3 py-3 rounded-lg text-gray-700 font-medium hover:bg-gray-50 hover:text-primary-600 transition"
+                >
+                  {t('nav.myBookings')}
+                </Link>
               )}
-              <a href={`tel:${phone}`} className="flex items-center gap-2 text-primary-600">
-                <Phone size={18} />
-                {t('contact.call')} {phone}
-              </a>
+              <div className="px-3 py-2">
+                <LanguageSwitcher />
+              </div>
+              <div className="border-t border-gray-100 mt-1 pt-2 flex flex-col gap-1">
+                {isLoggedIn ? (
+                  <button
+                    onClick={() => { handleLogout(); setMobileMenuOpen(false); }}
+                    className="flex items-center gap-2 px-3 py-3 rounded-lg text-red-600 hover:bg-red-50 transition font-medium"
+                  >
+                    <LogOut size={18} />
+                    {t('nav.logout')}
+                  </button>
+                ) : (
+                  <Link
+                    to="/login"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block px-3 py-3 rounded-lg bg-primary-600 text-white font-medium text-center hover:bg-primary-700 transition"
+                  >
+                    {t('nav.login')}
+                  </Link>
+                )}
+                <a
+                  href={`tel:${phone}`}
+                  className="flex items-center gap-2 px-3 py-3 rounded-lg text-primary-600 font-medium hover:bg-primary-50 transition"
+                >
+                  <Phone size={18} />
+                  {t('contact.call')} {phone}
+                </a>
+              </div>
             </nav>
-          )}
-        </div>
+          </div>
+        )}
       </header>
 
       <main className="flex-1">{children}</main>
