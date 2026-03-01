@@ -54,61 +54,13 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'config.urls'
 WSGI_APPLICATION = 'config.wsgi.application'
 
-# Database: DATABASE_URL (paste full Supabase Session mode URI) or Supabase pooler/direct or PG or SQLite
-# Best: Supabase → Project Settings → Database → Connection string → "Session mode" → copy URI → set as DATABASE_URL
-_db_url = os.getenv('DATABASE_URL')
-if _db_url:
-    import dj_database_url
-    # Keep this low by default for pooled databases (e.g. Supabase pooler)
-    _conn_max_age = int(os.getenv('DB_CONN_MAX_AGE', '0'))
-    DATABASES = {'default': dj_database_url.parse(_db_url, conn_max_age=_conn_max_age)}
-    DATABASES['default']['OPTIONS'] = DATABASES['default'].get('OPTIONS', {})
-    DATABASES['default']['OPTIONS']['sslmode'] = 'require'
-elif os.getenv('SUPABASE_POOLER_HOST'):
-    # Session pooler: port 5432. User = postgres.PROJECT_REF (e.g. postgres.hcbdyzghactztdzsqulf)
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.getenv('SUPABASE_DB_NAME', 'postgres'),
-            'USER': os.getenv('SUPABASE_DB_USER', 'postgres'),
-            'PASSWORD': os.getenv('SUPABASE_DB_PASSWORD', ''),
-            'HOST': os.getenv('SUPABASE_POOLER_HOST'),
-            'PORT': os.getenv('SUPABASE_DB_PORT', '5432'),
-            'OPTIONS': {'sslmode': 'require'},
-        }
+# Database: SQLite for production (Supabase DNS issues)
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
-elif os.getenv('SUPABASE_DB_HOST'):
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.getenv('SUPABASE_DB_NAME', 'postgres'),
-            'USER': os.getenv('SUPABASE_DB_USER', 'postgres'),
-            'PASSWORD': os.getenv('SUPABASE_DB_PASSWORD', ''),
-            'HOST': os.getenv('SUPABASE_DB_HOST'),
-            'PORT': os.getenv('SUPABASE_DB_PORT', '5432'),
-            'OPTIONS': {'sslmode': 'require'},
-        }
-    }
-elif os.getenv('PG_PASSWORD'):
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.getenv('PG_NAME', 'ac_refrigeration'),
-            'USER': os.getenv('PG_USER', 'postgres'),
-            'PASSWORD': os.getenv('PG_PASSWORD', ''),
-            'HOST': os.getenv('PG_HOST', '127.0.0.1'),
-            'PORT': os.getenv('PG_PORT', '5432'),
-            'OPTIONS': {'sslmode': os.getenv('PG_SSLMODE', 'prefer')},
-        }
-    }
-else:
-    # Fallback to SQLite for production deployment
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
+}
 
 # Password hashing
 AUTH_PASSWORD_HASHERS = [
