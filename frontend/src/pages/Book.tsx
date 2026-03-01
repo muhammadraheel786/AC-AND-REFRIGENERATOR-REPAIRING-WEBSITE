@@ -81,14 +81,24 @@ export default function Book() {
   useEffect(() => {
     if (!bookingResult?.id || invoiceAutoDownloadDone) return
     setInvoiceAutoDownloadDone(true)
-    downloadInvoicePdf(bookingResult.id, `invoice-${bookingResult.id}.pdf`).catch(() => {})
+    downloadInvoicePdf(bookingResult.id, `invoice-${bookingResult.id}.pdf`).catch(() => { })
   }, [bookingResult?.id, invoiceAutoDownloadDone])
 
   useEffect(() => {
     const loadServices = async () => {
       try {
         const data = await servicesApi.list({ lang: i18n.language })
-        setServices(Array.isArray(data) ? data : [])
+        const rawServices = Array.isArray(data) ? (data as Array<{ id: number; name: string; category: string }>) : []
+
+        // Deduplicate services by name (backend MongoDB has duplicate entries)
+        const uniqueServices = rawServices.reduce((acc: Array<{ id: number; name: string; category: string }>, curr) => {
+          if (!acc.find(s => s.name === curr.name)) {
+            acc.push(curr)
+          }
+          return acc
+        }, [])
+
+        setServices(uniqueServices)
       } catch (err) {
         setError('Failed to load services')
         setServices([])
@@ -111,17 +121,17 @@ export default function Book() {
   const setCoordsOnForm = async (lat: number, lng: number) => {
     const latRounded = Number(lat.toFixed(7))
     const lngRounded = Number(lng.toFixed(7))
-    
+
     // Get readable address from coordinates
     const address = await getAddressFromCoords(latRounded, lngRounded)
-    
+
     setForm((f) => ({
       ...f,
       address_lat: latRounded,
       address_lng: lngRounded,
       address_street: f.address_street || address || `${latRounded.toFixed(6)}, ${lngRounded.toFixed(6)}`,
     }))
-    
+
     setReadableAddress(address)
   }
 
