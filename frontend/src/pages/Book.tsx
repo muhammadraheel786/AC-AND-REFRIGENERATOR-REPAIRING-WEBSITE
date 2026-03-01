@@ -74,6 +74,7 @@ export default function Book() {
   const [manualLat, setManualLat] = useState('')
   const [manualLng, setManualLng] = useState('')
   const [invoiceAutoDownloadDone, setInvoiceAutoDownloadDone] = useState(false)
+  const [readableAddress, setReadableAddress] = useState('')
   const isLoggedIn = !!localStorage.getItem('token')
 
   // Auto-download invoice when booking is created (step 3)
@@ -107,15 +108,21 @@ export default function Book() {
     }
   }, [presetCategory, services])
 
-  const setCoordsOnForm = (lat: number, lng: number) => {
+  const setCoordsOnForm = async (lat: number, lng: number) => {
     const latRounded = Number(lat.toFixed(7))
     const lngRounded = Number(lng.toFixed(7))
+    
+    // Get readable address from coordinates
+    const address = await getAddressFromCoords(latRounded, lngRounded)
+    
     setForm((f) => ({
       ...f,
       address_lat: latRounded,
       address_lng: lngRounded,
-      address_street: f.address_street || `${latRounded.toFixed(6)}, ${lngRounded.toFixed(6)}`,
+      address_street: f.address_street || address || `${latRounded.toFixed(6)}, ${lngRounded.toFixed(6)}`,
     }))
+    
+    setReadableAddress(address)
   }
 
   const handleUseCurrentLocation = () => {
@@ -143,7 +150,7 @@ export default function Book() {
     )
   }
 
-  const handleApplyManualLocation = () => {
+  const handleApplyManualLocation = async () => {
     const lat = Number(manualLat)
     const lng = Number(manualLng)
     const latOk = Number.isFinite(lat) && lat >= -90 && lat <= 90
@@ -152,8 +159,24 @@ export default function Book() {
       setLocationStatus(t('booking.locationInvalid'))
       return
     }
-    setCoordsOnForm(lat, lng)
+    await setCoordsOnForm(lat, lng)
     setLocationStatus(t('booking.locationCaptured'))
+  }
+
+  const getAddressFromCoords = async (lat: number, lng: number): Promise<string> => {
+    try {
+      // Using Nominatim reverse geocoding (free OpenStreetMap service)
+      const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=${i18n.language}`)
+      if (response.ok) {
+        const data = await response.json()
+        if (data.display_name) {
+          return data.display_name
+        }
+      }
+    } catch (error) {
+      console.warn('Failed to get address from coordinates:', error)
+    }
+    return `${lat.toFixed(6)}, ${lng.toFixed(6)}`
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -374,7 +397,7 @@ export default function Book() {
             </button>
             {(form.address_lat !== null && form.address_lng !== null) && (
               <p className="text-xs text-gray-600 mt-2">
-                {t('booking.selectedCoordinates')}: {form.address_lat.toFixed(6)}, {form.address_lng.toFixed(6)}
+                {t('booking.selectedLocation')}: {readableAddress || `${form.address_lat.toFixed(6)}, ${form.address_lng.toFixed(6)}`}
               </p>
             )}
             {locationStatus && <p className="text-xs text-gray-600 mt-1">{locationStatus}</p>}
