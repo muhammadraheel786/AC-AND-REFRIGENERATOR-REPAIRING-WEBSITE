@@ -57,10 +57,10 @@ export default function Layout({ children }: { children: ReactNode }) {
           <div
             key={toast.id}
             className={`pointer-events-auto rounded-lg px-4 py-3 shadow-lg border text-sm ${toast.type === 'success'
-                ? 'bg-green-50 text-green-800 border-green-200'
-                : toast.type === 'error'
-                  ? 'bg-red-50 text-red-800 border-red-200'
-                  : 'bg-blue-50 text-blue-800 border-blue-200'
+              ? 'bg-green-50 text-green-800 border-green-200'
+              : toast.type === 'error'
+                ? 'bg-red-50 text-red-800 border-red-200'
+                : 'bg-blue-50 text-blue-800 border-blue-200'
               }`}
           >
             {toast.message}
@@ -179,17 +179,16 @@ export default function Layout({ children }: { children: ReactNode }) {
           <a href={`tel:${phone}`} className="inline-block mt-2 text-primary-300 hover:text-white">
             {phone}
           </a>
-          <p className="mt-4 text-sm text-gray-500">
-            {site?.footer_text_ar || t('footer.rights')}
-            {' · '}
-            <a
-              href={`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/admin/`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-primary-300 hover:text-white"
+          <p className="mt-4 text-sm text-gray-500 flex items-center justify-center gap-3 flex-wrap">
+            <span>{site?.footer_text_ar || t('footer.rights')}</span>
+            <Link
+              to="/admin-panel"
+              className="inline-flex items-center gap-1.5 text-gray-500 hover:text-teal-400 transition-colors"
+              title="Admin Panel"
             >
-              {t('footer.admin')}
-            </a>
+              <span>⚙️</span>
+              <span className="text-xs">لوحة التحكم</span>
+            </Link>
           </p>
         </div>
       </footer>
