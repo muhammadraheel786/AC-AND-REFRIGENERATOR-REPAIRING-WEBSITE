@@ -5,9 +5,24 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 
-load_dotenv()
+# REMOVE DATABASE ENVIRONMENT VARIABLES FIRST - before any other code
+os.environ.pop('DATABASE_URL', None)
+os.environ.pop('SUPABASE_DB_HOST', None)
+os.environ.pop('SUPABASE_DB_NAME', None)
+os.environ.pop('SUPABASE_DB_USER', None)
+os.environ.pop('SUPABASE_DB_PASSWORD', None)
+os.environ.pop('SUPABASE_DB_PORT', None)
+os.environ.pop('SUPABASE_POOLER_HOST', None)
+os.environ.pop('PG_HOST', None)
+os.environ.pop('PG_NAME', None)
+os.environ.pop('PG_PASSWORD', None)
+os.environ.pop('PG_PORT', None)
 
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Load environment variables from .env
+load_dotenv()
 
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'dev-secret-change-in-production')
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
@@ -54,29 +69,13 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'config.urls'
 WSGI_APPLICATION = 'config.wsgi.application'
 
-# Database: FORCE SQLite for production deployment
-# Ignore all environment variables and use SQLite
+# Database: SQLite for production deployment
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
-# Explicitly disable any database environment variables
-# This prevents Django from trying to use environment variables
-import os
-os.environ.pop('DATABASE_URL', None)
-os.environ.pop('SUPABASE_DB_HOST', None)
-os.environ.pop('SUPABASE_DB_NAME', None)
-os.environ.pop('SUPABASE_DB_USER', None)
-os.environ.pop('SUPABASE_DB_PASSWORD', None)
-os.environ.pop('SUPABASE_DB_PORT', None)
-os.environ.pop('SUPABASE_POOLER_HOST', None)
-os.environ.pop('PG_HOST', None)
-os.environ.pop('PG_NAME', None)
-os.environ.pop('PG_PASSWORD', None)
-os.environ.pop('PG_PORT', None)
 
 # Password hashing
 AUTH_PASSWORD_HASHERS = [
