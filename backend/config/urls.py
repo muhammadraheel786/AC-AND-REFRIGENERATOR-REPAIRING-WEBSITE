@@ -15,6 +15,7 @@ def api_root_view(request):
         'version': '1.0.0',
         'status': 'running',
         'endpoints': {
+            'health': '/api/health/',
             'services': '/api/services/',
             'auth': {
                 'login': '/api/auth/login/',

@@ -76,6 +76,7 @@ DATABASES = {
         'NAME': 'ac_refrigeration',
         'ENFORCE_SCHEMA': True,
         'CLIENT': {
+            # MONGODB_URI: set in Fly secrets. Use real password (no <>); URL-encode special characters.
             'host': os.getenv('MONGODB_URI', 'mongodb+srv://acrepairing21:<acrepairing21>@cluster786.eu651.mongodb.net/?appName=Cluster786')
         }
     }

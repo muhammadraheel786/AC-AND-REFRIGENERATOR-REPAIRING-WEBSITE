@@ -99,6 +99,32 @@ Wait until the build and deploy finish. Your API will be at:
 
 ---
 
+## 6b. MongoDB Atlas – avoid 500 errors
+
+If you get **500** on `/api/services/` or **503** on `/api/health/`, the app cannot reach MongoDB.
+
+1. **Connection string (Fly secret)**  
+   Set `MONGODB_URI` with your **real** Atlas connection string:
+   - In Atlas: Cluster → Connect → Drivers → copy the URI.
+   - Replace `<password>` with your actual database password (no angle brackets).
+   - If the password has special characters (`@`, `#`, `:`, etc.), [URL-encode](https://www.w3schools.com/tags/ref_urlencode.asp) them.
+   - Then:  
+     `fly secrets set MONGODB_URI="mongodb+srv://user:YOUR_REAL_PASSWORD@cluster....mongodb.net/?appName=..."`
+
+2. **Network Access**  
+   In Atlas: **Network Access** → **Add IP Address** → **Allow Access from Anywhere** (`0.0.0.0/0`) so Fly.io can connect. Save.
+
+3. **Database user**  
+   In Atlas: **Database Access** → ensure the user used in the URI has read/write on the database (e.g. `ac_refrigeration`).
+
+4. **Check from the API**  
+   Open:  
+   **https://ac-repair-backend.fly.dev/api/health/**  
+   - If you see `{"status":"ok","database":"connected"}` → MongoDB is working.  
+   - If you see `{"status":"error","database":"failed","message":"..."}` → use the message to fix URI or Atlas settings.
+
+---
+
 ## 7. Run migrations (first deploy only)
 
 After the first successful deploy:

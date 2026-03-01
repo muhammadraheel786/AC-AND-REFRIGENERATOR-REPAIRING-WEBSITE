@@ -12,6 +12,7 @@ router.register(r'payments', payment_views.PaymentViewSet, basename='payment')
 router.register(r'notification-logs', notification_views.NotificationLogViewSet, basename='notification-log')
 
 urlpatterns = [
+    path('health/', booking_views.health_view),
     path('bookings/guest/', booking_views.GuestBookingCreateView.as_view(), name='guest-booking'),
     path('payments/return/', payment_views.payment_return_view),
     path('', include(router.urls)),

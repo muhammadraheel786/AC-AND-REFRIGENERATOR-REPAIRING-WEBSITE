@@ -1,8 +1,9 @@
 from rest_framework import viewsets, status, permissions
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.http import HttpResponse
+from django.db import connection
 from .models import Service, Booking, InvoiceLineItem
 from .serializers import (
     ServiceSerializer, ServiceListSerializer, BookingSerializer,
@@ -16,9 +17,32 @@ def _notify_booking_created(booking):
     pass
 
 
+@api_view(['GET'])
+@permission_classes([permissions.AllowAny])
+def health_view(request):
+    """Health check: verifies app and MongoDB connection. Use for debugging 500s."""
+    try:
+        connection.ensure_connection()
+        # Quick read to confirm DB is usable
+        Service.objects.exists()
+        return Response({'status': 'ok', 'database': 'connected'}, status=status.HTTP_200_OK)
+    except Exception as e:
+        err = str(e)
+        # Avoid leaking connection details
+        if 'password' in err.lower() or '@' in err or 'mongodb' in err.lower():
+            msg = 'Database connection failed (check MONGODB_URI and Atlas Network Access)'
+        else:
+            msg = err[:200]
+        return Response(
+            {'status': 'error', 'database': 'failed', 'message': msg},
+            status=status.HTTP_503_SERVICE_UNAVAILABLE
+        )
+
+
 class ServiceViewSet(viewsets.ModelViewSet):
     queryset = Service.objects.filter(is_active=True).order_by('id')
     filterset_fields = ['category']
+    pagination_class = None  # Avoid pagination .count() issues with djongo/MongoDB
 
     def get_serializer_class(self):
         if self.action in ('create', 'update', 'partial_update'):
