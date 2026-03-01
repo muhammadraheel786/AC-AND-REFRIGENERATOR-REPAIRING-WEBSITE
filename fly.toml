@@ -1,45 +1,38 @@
-# fly.toml app configuration file generated for ac-refrigeration-black-firefly-1333 on 2026-03-01T16:36:16+05:00
-#
-# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
-#
+# fly.toml - Fly.io configuration for AC & Refrigeration
 
-app = 'ac-refrigeration'
-primary_region = 'jnb'
+app = "ac-refrigeration"
+primary_region = "jnb"
 
 [build]
-  builder = 'paketobuild'
+  builder = "paketobuild"
 
 [env]
-  ALLOWED_HOSTS = 'ac-refrigeration.fly.dev,ac-refrigeration.fly.dev'
-  COMPANY_PHONE = '0582618038'
-  CORS_ORIGINS = 'https://youracrepair.com,https://www.youracrepair.com'
-  DEBUG = 'False'
-  DJANGO_SECRET_KEY = 'r$i242zvzyblhca^s5%(4au5@($s4lz%+s(z3*_b(*kc+okh%@'
-  DJANGO_SETTINGS_MODULE = 'config.settings'
-  FRONTEND_URL = 'https://youracrepair.com'
-  MONGODB_URI = 'mongodb+srv://acrepairing21:<acrepairing21>@cluster786.eu651.mongodb.net/?appName=Cluster786'
-  PORT = '8000'
+  DJANGO_SETTINGS_MODULE = "config.settings"
+  PORT = "8000"
+  DEBUG = "False"
+  ALLOWED_HOSTS = "ac-refrigeration.fly.dev,ac-refrigeration.fly.dev"
+  CORS_ORIGINS = "https://youracrepair.com,https://www.youracrepair.com"
+  FRONTEND_URL = "https://youracrepair.com"
+  DJANGO_SECRET_KEY = "r$i242zvzyblhca^s5%(4au5@($s4lz%+s(z3*_b(*kc+okh%@"
+  COMPANY_PHONE = "0582618038"
+  MONGODB_URI = "mongodb+srv://acrepairing21:<acrepairing21>@cluster786.eu651.mongodb.net/?appName=Cluster786"
 
 [http_service]
   internal_port = 8000
   force_https = true
 
 [processes]
-  app = 'gunicorn config.wsgi:application --bind 0.0.0.0:8000'
+  app = "gunicorn config.wsgi:application --bind 0.0.0.0:8000"
 
 [[services]]
-  protocol = 'tcp'
+  protocol = "tcp"
   internal_port = 8000
-  processes = ['app']
+  processes = ["app"]
 
-  [[services.ports]]
-    port = 80
-    handlers = ['http']
+[[services.ports]]
+  protocol = "tcp"
+  handlers = ["http"]
+  port = "80"
 
 [deploy]
-  strategy = 'canary'
-
-[[vm]]
-  memory = '1gb'
-  cpus = 1
-  memory_mb = 1024
+  strategy = "canary"
