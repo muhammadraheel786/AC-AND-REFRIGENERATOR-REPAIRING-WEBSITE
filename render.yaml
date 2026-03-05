@@ -1,0 +1,39 @@
+services:
+  - type: web
+    name: ac-repair-backend
+    env: docker
+    rootDir: backend
+    plan: free
+    autoDeploy: true
+    region: oregon
+    healthCheckPath: /api/health/
+    envVars:
+      # Set these in the Render dashboard → Environment
+      - key: DJANGO_SECRET_KEY
+        sync: false
+      - key: DEBUG
+        value: "False"
+      - key: ALLOWED_HOSTS
+        value: "ac-repair-backend.onrender.com,localhost,127.0.0.1"
+      - key: MONGODB_URI
+        sync: false
+      - key: CORS_ORIGINS
+        value: "https://youracrepair.com,https://www.youracrepair.com"
+      - key: CSRF_TRUSTED_ORIGINS
+        value: "https://youracrepair.com,https://www.youracrepair.com"
+      - key: FRONTEND_URL
+        value: "https://www.youracrepair.com"
+      - key: COMPANY_PHONE
+        value: "0582618038"
+      # Optional: email / WhatsApp / SMS keys
+      - key: SMTP_HOST
+        value: "smtp.gmail.com"
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: SMTP_FROM
+        value: "noreply@ac-refrigeration.sa"
+
