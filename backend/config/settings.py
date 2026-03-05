@@ -33,7 +33,7 @@ if DEBUG:
     _default_hosts = 'localhost,127.0.0.1,localhost:3000,localhost:3001,localhost:8000'
 else:
     # Production: Render wildcard + custom domain
-    _default_hosts = 'ac-repair-backend.onrender.com,ac-and-refrigenerator-repairing-website.onrender.com,youracrepair.com,www.youracrepair.com'
+    _default_hosts = 'ac-and-refrigenerator-repairing-website-eeoa.onrender.com,youracrepair.com,www.youracrepair.com'
 
 ALLOWED_HOSTS = [h.strip() for h in os.getenv('ALLOWED_HOSTS', _default_hosts).split(',') if h.strip()]
 # Always allow onrender.com subdomains (Render health checks might use internal hostnames)
@@ -242,7 +242,7 @@ if not DEBUG:
     CSRF_TRUSTED_ORIGINS = [
         'https://youracrepair.com',
         'https://www.youracrepair.com',
-        'https://ac-repair-backend.onrender.com',
+        'https://ac-and-refrigenerator-repairing-website-eeoa.onrender.com',
     ]
 else:
     # Development settings
