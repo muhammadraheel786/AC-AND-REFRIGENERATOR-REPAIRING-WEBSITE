@@ -32,13 +32,13 @@ if DEBUG:
     # Development hosts
     _default_hosts = 'localhost,127.0.0.1,localhost:3000,localhost:3001,localhost:8000'
 else:
-    # Production: Fly.io wildcard + custom domain
-    _default_hosts = 'ac-repair-backend.fly.dev,.fly.dev,ac-and-refrigenerator-repairing-website.onrender.com'
+    # Production: Render wildcard + custom domain
+    _default_hosts = 'ac-repair-backend.onrender.com,ac-and-refrigenerator-repairing-website.onrender.com,youracrepair.com,www.youracrepair.com'
 
 ALLOWED_HOSTS = [h.strip() for h in os.getenv('ALLOWED_HOSTS', _default_hosts).split(',') if h.strip()]
-# Always allow fly.dev subdomains (Fly.io health checks use the internal hostname)
-if not DEBUG and '.fly.dev' not in ALLOWED_HOSTS:
-    ALLOWED_HOSTS.append('.fly.dev')
+# Always allow onrender.com subdomains (Render health checks might use internal hostnames)
+if not DEBUG and '.onrender.com' not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append('.onrender.com')
 
 # Application definition
 INSTALLED_APPS = [
@@ -242,6 +242,7 @@ if not DEBUG:
     CSRF_TRUSTED_ORIGINS = [
         'https://youracrepair.com',
         'https://www.youracrepair.com',
+        'https://ac-repair-backend.onrender.com',
     ]
 else:
     # Development settings
