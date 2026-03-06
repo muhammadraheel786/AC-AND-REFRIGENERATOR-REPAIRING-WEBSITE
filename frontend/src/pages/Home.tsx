@@ -19,6 +19,17 @@ export default function Home() {
     { icon: Wrench, key: 'appliance', to: '/book?service=appliance' },
   ]
 
+  // Hero / card imagery (royalty‑free AC / appliance shots)
+  const serviceImages: Record<string, string> = {
+    ac: 'https://images.pexels.com/photos/3964344/pexels-photo-3964344.jpeg?auto=compress&cs=tinysrgb&w=1200',
+    refrigerator:
+      'https://images.pexels.com/photos/3738105/pexels-photo-3738105.jpeg?auto=compress&cs=tinysrgb&w=1200',
+    washing:
+      'https://images.pexels.com/photos/5591610/pexels-photo-5591610.jpeg?auto=compress&cs=tinysrgb&w=1200',
+    appliance:
+      'https://images.pexels.com/photos/5591461/pexels-photo-5591461.jpeg?auto=compress&cs=tinysrgb&w=1200',
+  }
+
   const heroStats = [
     { label: t('home.stats_experience'), value: '10+' },
     { label: t('home.stats_projects'), value: '132+' },
@@ -96,9 +107,15 @@ export default function Home() {
               {services.map(({ icon: Icon, key }) => (
                 <div
                   key={key}
-                  className="relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-sm border border-white/10 p-5 flex flex-col justify-between shadow-xl hover:shadow-2xl transition-transform duration-300 hover:-translate-y-1"
+                  className="group relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-sm border border-white/10 p-4 flex flex-col justify-between shadow-xl hover:shadow-2xl transition-transform duration-300 hover:-translate-y-1"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary-500/20 via-transparent to-accent-gold/20" />
+                  <div className="relative h-24 rounded-2xl overflow-hidden mb-4">
+                    <div
+                      className="absolute inset-0 bg-cover bg-center transform group-hover:scale-105 transition-transform duration-500"
+                      style={{ backgroundImage: `url(${serviceImages[key]})` }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                  </div>
                   <div className="relative z-10 space-y-3">
                     <div className="w-10 h-10 rounded-full bg-white/15 flex items-center justify-center">
                       <Icon className="w-6 h-6 text-accent-gold" />
@@ -131,14 +148,23 @@ export default function Home() {
               <Link
                 key={key}
                 to={to}
-                className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition flex flex-col items-center text-center group transform hover:-translate-y-1 duration-300"
+                className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition transform hover:-translate-y-1 duration-300 overflow-hidden group flex flex-col text-center"
               >
-                <div className="w-16 h-16 rounded-full bg-primary-100 flex items-center justify-center mb-4 group-hover:bg-primary-200 transition-colors duration-300">
-                  <Icon className="w-8 h-8 text-primary-600" />
+                <div className="relative h-32 w-full overflow-hidden">
+                  <div
+                    className="absolute inset-0 bg-cover bg-center transform group-hover:scale-105 transition-transform duration-500"
+                    style={{ backgroundImage: `url(${serviceImages[key]})` }}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
                 </div>
-                <h3 className="font-semibold text-gray-800">
-                  {t(`services.${key}`)}
-                </h3>
+                <div className="p-5 flex-1 flex flex-col items-center gap-3">
+                  <div className="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center group-hover:bg-primary-200 transition-colors duration-300">
+                    <Icon className="w-7 h-7 text-primary-600" />
+                  </div>
+                  <h3 className="font-semibold text-gray-800">
+                    {t(`services.${key}`)}
+                  </h3>
+                </div>
               </Link>
             ))}
           </div>
