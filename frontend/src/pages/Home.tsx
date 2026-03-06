@@ -8,28 +8,22 @@ import {
   ChevronLeft,
   PlayCircle,
 } from 'lucide-react'
-import img1 from './1.jpg'
-import img2 from './2.jpg'
-import img3 from './3.jpg'
-import img4 from './4.jpg'
+import heroAcMain from './ac repair 2.jpg'
+import heroAcSecondary from './ac repair 3.jpg'
+import imgAc from './ac repair.jpg'
+import imgFridge from './refrigenerator repair.jpg'
+import imgWashing from './washing machine repari.jpg'
+import imgAppliance from './home appliance repaing.jpg'
 
 export default function Home() {
   const { t } = useTranslation()
 
   const services = [
-    { icon: Wind, key: 'ac', to: '/book?service=ac' },
-    { icon: Thermometer, key: 'refrigerator', to: '/book?service=refrigerator' },
-    { icon: WashingMachine, key: 'washing', to: '/book?service=washing_machine' },
-    { icon: Wrench, key: 'appliance', to: '/book?service=appliance' },
-  ]
-
-  // Hero / card imagery – use local images from src/pages
-  const serviceImages: Record<string, string> = {
-    ac: img1,
-    refrigerator: img2,
-    washing: img3,
-    appliance: img4,
-  }
+    { icon: Wind, key: 'ac', to: '/book?service=ac', image: imgAc },
+    { icon: Thermometer, key: 'refrigerator', to: '/book?service=refrigerator', image: imgFridge },
+    { icon: WashingMachine, key: 'washing', to: '/book?service=washing_machine', image: imgWashing },
+    { icon: Wrench, key: 'appliance', to: '/book?service=appliance', image: imgAppliance },
+  ] as const
 
   const heroStats = [
     { label: t('home.stats_experience'), value: '10+' },
@@ -41,7 +35,7 @@ export default function Home() {
     <div className="bg-gray-50">
       {/* HERO WITH BACKGROUND VIDEO */}
       <section className="relative text-white overflow-hidden">
-        {/* Background video */}
+        {/* Background video / animated hero */}
         <video
           className="absolute inset-0 w-full h-full object-cover"
           autoPlay
@@ -50,7 +44,7 @@ export default function Home() {
           playsInline
         >
           <source
-            src="https://videos.pexels.com/video-files/5212312/5212312-uhd_2160_4096_25fps.mp4"
+            src="https://videos.pexels.com/video-files/7539920/7539920-hd_1920_1080_25fps.mp4"
             type="video/mp4"
           />
         </video>
@@ -103,17 +97,36 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Right: service highlight cards */}
+            {/* Right: service highlight cards + AC imagery */}
             <div className="grid grid-cols-2 gap-4 md:gap-6">
-              {services.map(({ icon: Icon, key }) => (
+              {/* Top wide AC hero image */}
+              <div className="col-span-2 relative h-32 md:h-40 rounded-3xl overflow-hidden shadow-2xl">
+                <div
+                  className="absolute inset-0 bg-cover bg-center transform hover:scale-105 transition-transform duration-700"
+                  style={{ backgroundImage: `url(${heroAcMain})` }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/20 to-transparent" />
+                <div className="relative z-10 h-full flex items-center px-5 md:px-7">
+                  <div>
+                    <p className="text-xs md:text-sm text-primary-100 mb-1">
+                      {t('home.hero_available_24_7')}
+                    </p>
+                    <h3 className="font-semibold text-base md:text-lg">
+                      {t('services.ac')}
+                    </h3>
+                  </div>
+                </div>
+              </div>
+
+              {services.map(({ icon: Icon, key, image }) => (
                 <div
                   key={key}
                   className="group relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-sm border border-white/10 p-4 flex flex-col justify-between shadow-xl hover:shadow-2xl transition-transform duration-300 hover:-translate-y-1"
                 >
-                  <div className="relative h-24 rounded-2xl overflow-hidden mb-4">
+                  <div className="relative h-32 md:h-40 rounded-2xl overflow-hidden mb-4">
                     <div
                       className="absolute inset-0 bg-cover bg-center transform group-hover:scale-105 transition-transform duration-500"
-                      style={{ backgroundImage: `url(${serviceImages[key]})` }}
+                      style={{ backgroundImage: `url(${image})` }}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
                   </div>
@@ -145,16 +158,16 @@ export default function Home() {
             {t('services.title')}
           </h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {services.map(({ icon: Icon, key, to }) => (
+            {services.map(({ icon: Icon, key, to, image }) => (
               <Link
                 key={key}
                 to={to}
                 className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition transform hover:-translate-y-1 duration-300 overflow-hidden group flex flex-col text-center"
               >
-                <div className="relative h-32 w-full overflow-hidden">
+                <div className="relative h-40 md:h-48 w-full overflow-hidden">
                   <div
                     className="absolute inset-0 bg-cover bg-center transform group-hover:scale-105 transition-transform duration-500"
-                    style={{ backgroundImage: `url(${serviceImages[key]})` }}
+                    style={{ backgroundImage: `url(${image})` }}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
                 </div>
