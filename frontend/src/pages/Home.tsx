@@ -8,8 +8,6 @@ import {
   ChevronLeft,
   PlayCircle,
 } from 'lucide-react'
-import heroAcMain from './ac repair 2.jpg'
-import heroAcSecondary from './ac repair 3.jpg'
 import imgAc from './ac repair.jpg'
 import imgFridge from './refrigenerator repair.jpg'
 import imgWashing from './washing machine repari.jpg'
@@ -34,7 +32,7 @@ export default function Home() {
   return (
     <div className="bg-gray-50">
       {/* HERO WITH BACKGROUND VIDEO */}
-      <section className="relative text-white overflow-hidden">
+      <section className="relative text-white overflow-hidden min-h-[520px] md:min-h-[640px] flex items-center">
         {/* Background video / animated hero */}
         <video
           className="absolute inset-0 w-full h-full object-cover"
@@ -48,10 +46,10 @@ export default function Home() {
             type="video/mp4"
           />
         </video>
-        {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-br from-black/80 via-black/60 to-primary-900/80" />
+        {/* Softer gradient overlay so video is visible */}
+        <div className="absolute inset-0 bg-gradient-to-br from-black/70 via-black/40 to-primary-900/60" />
 
-        <div className="relative max-w-7xl mx-auto px-4 py-20 md:py-28">
+        <div className="relative max-w-7xl mx-auto px-4 py-16 md:py-20 w-full">
           <div className="grid md:grid-cols-2 gap-10 items-center">
             {/* Left: text + CTA */}
             <div className="space-y-6 md:space-y-8 animate-[fadeInUp_0.7s_ease-out]">
@@ -97,27 +95,8 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Right: service highlight cards + AC imagery */}
+            {/* Right: service highlight cards */}
             <div className="grid grid-cols-2 gap-4 md:gap-6">
-              {/* Top wide AC hero image */}
-              <div className="col-span-2 relative h-32 md:h-40 rounded-3xl overflow-hidden shadow-2xl">
-                <div
-                  className="absolute inset-0 bg-cover bg-center transform hover:scale-105 transition-transform duration-700"
-                  style={{ backgroundImage: `url(${heroAcMain})` }}
-                />
-                <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/20 to-transparent" />
-                <div className="relative z-10 h-full flex items-center px-5 md:px-7">
-                  <div>
-                    <p className="text-xs md:text-sm text-primary-100 mb-1">
-                      {t('home.hero_available_24_7')}
-                    </p>
-                    <h3 className="font-semibold text-base md:text-lg">
-                      {t('services.ac')}
-                    </h3>
-                  </div>
-                </div>
-              </div>
-
               {services.map(({ icon: Icon, key, image }) => (
                 <div
                   key={key}
