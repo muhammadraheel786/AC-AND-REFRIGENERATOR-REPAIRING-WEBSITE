@@ -9,7 +9,13 @@ export default function Layout({ children }: { children: ReactNode }) {
   const { t } = useTranslation()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('token'))
-  const [site, setSite] = useState<{ company_name_ar?: string; company_name_en?: string; phone?: string } | null>(null)
+  const [site, setSite] = useState<{
+    company_name_ar?: string;
+    company_name_en?: string;
+    phone?: string;
+    address_en?: string;
+    footer_text_ar?: string;
+  } | null>(null)
   const [toasts, setToasts] = useState<Array<{ id: number; message: string; type: 'success' | 'error' | 'info' }>>([])
 
   useEffect(() => {
@@ -70,9 +76,15 @@ export default function Layout({ children }: { children: ReactNode }) {
       <header className="bg-white shadow-md sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16 md:h-20">
-            <Link to="/" className="flex items-center gap-2">
-              <span className="text-2xl font-bold text-primary-600">{site?.company_name_ar || t('hero.title')}</span>
-              <span className="text-sm text-gray-500 hidden sm:inline">| {site?.company_name_en || 'A/C & Refrigeration'}</span>
+            <Link to="/" className="flex items-center gap-3 group">
+              <div className="flex flex-col">
+                <span className="text-xl md:text-2xl font-black text-primary-600 tracking-tight leading-none">
+                  {site?.company_name_ar || t('hero.title')}
+                </span>
+                <span className="text-[10px] md:text-xs font-medium text-gray-500 tracking-wider uppercase mt-1">
+                  {site?.company_name_en || 'A/C & Refrigeration'}
+                </span>
+              </div>
             </Link>
 
             <nav className="hidden md:flex items-center gap-6">
@@ -88,18 +100,27 @@ export default function Layout({ children }: { children: ReactNode }) {
               {isLoggedIn && <Link to="/my-bookings" className="text-gray-700 hover:text-primary-600 font-medium">{t('nav.myBookings')}</Link>}
               <LanguageSwitcher />
               {isLoggedIn ? (
-                <button onClick={handleLogout} className="flex items-center gap-1 text-gray-700 hover:text-red-600">
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-2 text-gray-600 hover:text-red-600 font-semibold px-4 py-2 rounded-xl hover:bg-red-50 transition-all duration-300"
+                >
                   <LogOut size={18} />
                   {t('nav.logout')}
                 </button>
               ) : (
-                <Link to="/login" className="flex items-center gap-1 bg-primary-600 text-white px-4 py-2 rounded-full hover:bg-primary-700">
+                <Link
+                  to="/login"
+                  className="flex items-center gap-2 bg-gray-100 text-gray-700 px-5 py-2.5 rounded-xl font-bold hover:bg-gray-200 transition-all duration-300 active:scale-95 shadow-sm"
+                >
                   {t('nav.login')}
                 </Link>
               )}
-              <a href={`tel:${phone}`} className="flex items-center gap-1 bg-primary-600 text-white px-4 py-2 rounded-full hover:bg-primary-700 transition">
-                <Phone size={18} />
-                {t('contact.call')}
+              <a
+                href={`tel:${phone}`}
+                className="flex items-center gap-2 bg-gradient-to-r from-primary-600 to-primary-500 text-white px-6 py-2.5 rounded-xl font-bold hover:shadow-lg hover:shadow-primary-500/30 transition-all duration-300 active:scale-95 group"
+              >
+                <Phone size={18} className="group-hover:rotate-12 transition-transform" />
+                <span>{t('contact.call')}</span>
               </a>
             </nav>
 

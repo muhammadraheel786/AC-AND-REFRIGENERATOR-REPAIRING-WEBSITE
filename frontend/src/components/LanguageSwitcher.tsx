@@ -16,16 +16,15 @@ export default function LanguageSwitcher() {
   }
 
   return (
-    <div className="flex gap-1">
+    <div className="flex bg-gray-100 p-1 rounded-xl shadow-inner-sm">
       {languages.map(({ code, label }) => (
         <button
           key={code}
           onClick={() => handleChange(code)}
-          className={`px-2 py-1 rounded text-sm transition ${
-            i18n.language === code
-              ? 'bg-primary-600 text-white'
-              : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
-          }`}
+          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-300 ${i18n.language === code
+              ? 'bg-white text-primary-600 shadow-sm'
+              : 'text-gray-500 hover:text-gray-700'
+            }`}
         >
           {label}
         </button>
