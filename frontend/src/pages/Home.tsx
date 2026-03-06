@@ -8,6 +8,10 @@ import {
   ChevronLeft,
   PlayCircle,
 } from 'lucide-react'
+import img1 from './1.jpg'
+import img2 from './2.jpg'
+import img3 from './3.jpg'
+import img4 from './4.jpg'
 
 export default function Home() {
   const { t } = useTranslation()
@@ -19,15 +23,12 @@ export default function Home() {
     { icon: Wrench, key: 'appliance', to: '/book?service=appliance' },
   ]
 
-  // Hero / card imagery (royalty‑free AC / appliance shots)
+  // Hero / card imagery – use local images from src/pages
   const serviceImages: Record<string, string> = {
-    ac: 'https://images.pexels.com/photos/3964344/pexels-photo-3964344.jpeg?auto=compress&cs=tinysrgb&w=1200',
-    refrigerator:
-      'https://images.pexels.com/photos/3738105/pexels-photo-3738105.jpeg?auto=compress&cs=tinysrgb&w=1200',
-    washing:
-      'https://images.pexels.com/photos/5591610/pexels-photo-5591610.jpeg?auto=compress&cs=tinysrgb&w=1200',
-    appliance:
-      'https://images.pexels.com/photos/5591461/pexels-photo-5591461.jpeg?auto=compress&cs=tinysrgb&w=1200',
+    ac: img1,
+    refrigerator: img2,
+    washing: img3,
+    appliance: img4,
   }
 
   const heroStats = [
