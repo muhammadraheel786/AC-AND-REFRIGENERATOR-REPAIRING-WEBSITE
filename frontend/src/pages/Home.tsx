@@ -8,44 +8,20 @@ import {
   ChevronLeft,
   PlayCircle,
 } from 'lucide-react'
-
-// High-quality stock images (Unsplash/Pexels) – AC & appliance themed
-const HERO_BG_IMAGE =
-  'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=1920&q=80'
-const SERVICE_IMAGES = {
-  ac: 'https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=800&q=80',
-  refrigerator:
-    'https://images.unsplash.com/photo-1571175443880-49e1d25b2bc5?w=800&q=80',
-  washing:
-    'https://images.pexels.com/photos/5591610/pexels-photo-5591610.jpeg?auto=compress&cs=tinysrgb&w=800',
-  appliance:
-    'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&q=80',
-}
+import imgAc from './ac repair.jpg'
+import imgFridge from './refrigenerator repair.jpg'
+import imgWashing from './washing machine repari.jpg'
+import imgAppliance from './home appliance repaing.jpg'
 
 export default function Home() {
   const { t } = useTranslation()
 
   const services = [
-    { icon: Wind, key: 'ac' as const, to: '/book?service=ac', image: SERVICE_IMAGES.ac },
-    {
-      icon: Thermometer,
-      key: 'refrigerator' as const,
-      to: '/book?service=refrigerator',
-      image: SERVICE_IMAGES.refrigerator,
-    },
-    {
-      icon: WashingMachine,
-      key: 'washing' as const,
-      to: '/book?service=washing_machine',
-      image: SERVICE_IMAGES.washing,
-    },
-    {
-      icon: Wrench,
-      key: 'appliance' as const,
-      to: '/book?service=appliance',
-      image: SERVICE_IMAGES.appliance,
-    },
-  ]
+    { icon: Wind, key: 'ac', to: '/book?service=ac', image: imgAc },
+    { icon: Thermometer, key: 'refrigerator', to: '/book?service=refrigerator', image: imgFridge },
+    { icon: WashingMachine, key: 'washing', to: '/book?service=washing_machine', image: imgWashing },
+    { icon: Wrench, key: 'appliance', to: '/book?service=appliance', image: imgAppliance },
+  ] as const
 
   const heroStats = [
     { label: t('home.stats_experience'), value: '10+' },
@@ -60,7 +36,7 @@ export default function Home() {
         {/* Static AC image background (fallback if video fails) */}
         <div
           className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(${HERO_BG_IMAGE})` }}
+          style={{ backgroundImage: `url(${imgAc})` }}
         />
         {/* Background video / animated hero */}
         <video
@@ -75,8 +51,8 @@ export default function Home() {
             type="video/mp4"
           />
         </video>
-        {/* Branded teal/blue gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-br from-cyan-900/80 via-sky-900/70 to-slate-900/80" />
+        {/* Softer cool gradient overlay (change background color here) */}
+        <div className="absolute inset-0 bg-gradient-to-br from-sky-900/80 via-sky-800/70 to-slate-800/80" />
 
         <div className="relative max-w-7xl mx-auto px-4 py-16 md:py-20 w-full">
           <div className="grid md:grid-cols-2 gap-10 items-center">
