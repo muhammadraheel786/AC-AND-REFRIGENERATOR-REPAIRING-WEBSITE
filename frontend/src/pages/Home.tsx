@@ -32,22 +32,27 @@ export default function Home() {
   return (
     <div className="bg-gray-50">
       {/* HERO WITH BACKGROUND VIDEO */}
-      <section className="relative text-white overflow-hidden min-h-[520px] md:min-h-[640px] flex items-center">
+      <section className="relative text-white overflow-hidden min-h-[520px] md:minh-[640px] flex items-center">
+        {/* Static AC image background (fallback if video fails) */}
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: `url(${imgAc})` }}
+        />
         {/* Background video / animated hero */}
         <video
-          className="absolute inset-0 w-full h-full object-cover"
+          className="absolute inset-0 w-full h-full object-cover opacity-80"
           autoPlay
           muted
           loop
           playsInline
         >
           <source
-            src="https://videos.pexels.com/video-files/7539920/7539920-hd_1920_1080_25fps.mp4"
+            src="https://videos.pexels.com/video-files/5591715/5591715-uhd_3840_2160_25fps.mp4"
             type="video/mp4"
           />
         </video>
-        {/* Softer gradient overlay so video is visible */}
-        <div className="absolute inset-0 bg-gradient-to-br from-black/70 via-black/40 to-primary-900/60" />
+        {/* Branded teal/blue gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-br from-cyan-900/80 via-sky-900/70 to-slate-900/80" />
 
         <div className="relative max-w-7xl mx-auto px-4 py-16 md:py-20 w-full">
           <div className="grid md:grid-cols-2 gap-10 items-center">
