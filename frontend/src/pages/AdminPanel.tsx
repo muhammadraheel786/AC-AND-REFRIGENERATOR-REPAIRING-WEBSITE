@@ -23,7 +23,15 @@ const S_MAP: Record<string, string> = { pending: 'bg-amber-100 text-amber-700', 
 const P_MAP: Record<string, string> = { pending: 'bg-orange-100 text-orange-700', paid: 'bg-emerald-100 text-emerald-700', failed: 'bg-red-100 text-red-700', refunded: 'bg-gray-200 text-gray-700' }
 const inp = 'w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-xs text-white placeholder-gray-500 focus:border-teal-500 outline-none'
 const inpW = 'w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 bg-white focus:border-teal-500 outline-none'
-const TABS = [{ id: 'dashboard', icon: '📊', label: 'Dashboard' }, { id: 'bookings', icon: '📋', label: 'Bookings' }, { id: 'services', icon: '🔧', label: 'Services' }, { id: 'users', icon: '👥', label: 'Users' }, { id: 'payments', icon: '💳', label: 'Payments' }, { id: 'notifications', icon: '🔔', label: 'Notifications' }, { id: 'settings', icon: '⚙️', label: 'Settings' }]
+const TABS = [
+    { id: 'dashboard', icon: '📊', label: 'Dashboard' },
+    { id: 'bookings', icon: '📋', label: 'Bookings' },
+    { id: 'services', icon: '🔧', label: 'Services' },
+    { id: 'users', icon: '👥', label: 'Users' },
+    { id: 'payments', icon: '💳', label: 'Payments' },
+    { id: 'notifications', icon: '🔔', label: 'Notifications' },
+    { id: 'settings', icon: '⚙️', label: 'Settings' }
+]
 
 // ── Small components ──────────────────────────────────────────────────────────
 function Badge({ t, m }: { t: string; m: Record<string, string> }) { return <span className={`px-2 py-0.5 rounded text-xs font-semibold ${m[t] || 'bg-gray-200 text-gray-600'}`}>{t}</span> }
@@ -110,9 +118,10 @@ export default function AdminPanel() {
     const [siteSettings, setSiteSettings] = useState<SiteSettings>({})
     const [settingsBusy, setSettingsBusy] = useState(false)
     const [loading, setLoading] = useState(false)
-    const [editB, setEditB] = useState<Booking | null>(null); const [editS, setEditS] = useState<Service | null>(null); const [editU, setEditU] = useState<User | null>(null); const [newSvc, setNewSvc] = useState(false)
+    const [editB, setEditB] = useState<Booking | null>(null); const [viewB, setViewB] = useState<Booking | null>(null); const [editS, setEditS] = useState<Service | null>(null); const [editU, setEditU] = useState<User | null>(null); const [newSvc, setNewSvc] = useState(false)
     const [del, setDel] = useState<{ type: string; id: number; msg: string } | null>(null)
     const [toast, setToast] = useState('')
+    const [menuOpen, setMenuOpen] = useState(false)
     const ok = (m: string) => { setToast(m); setTimeout(() => setToast(''), 3200) }
 
     const loadStats = useCallback(async () => { try { const r = await http.get('/api/admin/stats/'); setStats(r.data) } catch { } }, [])
@@ -154,39 +163,62 @@ export default function AdminPanel() {
 
     return (
         <div dir="ltr" className="flex min-h-screen bg-gray-950 text-white text-sm" style={{ fontFamily: 'Inter,system-ui,sans-serif' }}>
-            {toast && <div className="fixed top-5 right-5 z-[300] bg-gray-900 border border-gray-700 text-white px-5 py-3 rounded-xl shadow-2xl text-xs font-medium">{toast}</div>}
+            {toast && <div className="fixed top-5 right-5 z-[500] bg-gray-900 border border-gray-700 text-white px-5 py-3 rounded-xl shadow-2xl text-xs font-medium animate-in fade-in slide-in-from-top-4">{toast}</div>}
+
+            {/* Sidebar Overlay (Mobile) */}
+            {menuOpen && <div className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden" onClick={() => setMenuOpen(false)} />}
 
             {/* Sidebar */}
-            <aside className="w-60 shrink-0 bg-gray-900 border-r border-gray-800 flex flex-col h-screen sticky top-0">
-                <div className="px-5 py-5 border-b border-gray-800">
+            <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-gray-900 border-r border-gray-800 flex flex-col transform transition-transform duration-300 lg:translate-x-0 lg:static lg:h-screen lg:sticky lg:top-0 ${menuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+                <div className="px-5 py-6 border-b border-gray-800 flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-xl bg-teal-500/20 border border-teal-500/30 flex items-center justify-center text-lg">⚙️</div>
-                        <div><p className="font-bold text-white text-xs">Admin Panel</p><p className="text-gray-600 text-xs">AC & Refrigeration</p></div>
+                        <div className="w-10 h-10 rounded-xl bg-teal-500/20 border border-teal-500/30 flex items-center justify-center text-xl shadow-inner shadow-teal-500/10">⚙️</div>
+                        <div>
+                            <p className="font-bold text-white text-xs tracking-tight">Admin Panel</p>
+                            <p className="text-gray-500 text-[10px] uppercase font-bold tracking-widest mt-0.5">AC Dammam</p>
+                        </div>
                     </div>
+                    <button className="lg:hidden w-8 h-8 flex items-center justify-center text-gray-400" onClick={() => setMenuOpen(false)}>×</button>
                 </div>
-                <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
+                <nav className="flex-1 p-4 space-y-1.5 overflow-y-auto overflow-x-hidden">
                     {TABS.map(t => (
-                        <button key={t.id} onClick={() => setTab(t.id)} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-all text-left ${tab === t.id ? 'bg-teal-500/15 text-teal-300 border border-teal-500/25' : 'text-gray-400 hover:bg-white/5 hover:text-gray-200'}`}>
-                            <span className="text-base w-5 text-center">{t.icon}</span>
-                            <span className="flex-1">{t.label}</span>
-                            {t.id === 'bookings' && stats?.bookings.pending > 0 && <span className="bg-amber-500 text-white text-[9px] font-bold min-w-[18px] h-[18px] flex items-center justify-center rounded-full px-1">{stats.bookings.pending}</span>}
+                        <button key={t.id} onClick={() => { setTab(t.id); setMenuOpen(false) }} className={`w-full flex items-center gap-3.5 px-3.5 py-3 rounded-xl text-xs font-medium transition-all group ${tab === t.id ? 'bg-teal-500/15 text-teal-300 border border-teal-500/25' : 'text-gray-400 hover:bg-white/5 hover:text-gray-200 border border-transparent'}`}>
+                            <span className={`text-lg w-6 h-6 flex items-center justify-center rounded-lg transition-transform group-hover:scale-110 ${tab === t.id ? 'text-teal-400' : 'text-gray-500'}`}>{t.icon}</span>
+                            <span className="flex-1 text-left">{t.label}</span>
+                            {t.id === 'bookings' && stats?.bookings.pending > 0 && <span className="bg-amber-500 text-white text-[10px] font-bold min-w-[20px] h-5 flex items-center justify-center rounded-full shadow-lg shadow-amber-500/20">{stats.bookings.pending}</span>}
                         </button>
                     ))}
                 </nav>
-                <div className="p-3 border-t border-gray-800 space-y-1">
-                    <div className="px-3 py-2 text-xs text-gray-500 truncate">👤 {name}</div>
-                    <button onClick={() => { localStorage.removeItem('admin_token'); setToken(null) }} className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-gray-500 hover:text-red-400 hover:bg-red-500/10 transition-colors text-left">🚪 Logout</button>
-                    <a href="/" className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-gray-500 hover:text-gray-200 hover:bg-white/5 transition-colors">🌐 Back to Site</a>
+                <div className="p-4 border-t border-gray-800 space-y-2">
+                    <div className="px-3.5 py-2.5 bg-gray-800/50 rounded-xl border border-gray-700/50 flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-teal-600 flex items-center justify-center text-xs font-bold shrink-0">{name[0]}</div>
+                        <div className="min-w-0 flex-1">
+                            <p className="text-[11px] font-bold text-white truncate">{name}</p>
+                            <p className="text-[9px] text-gray-500 font-medium">Administrator</p>
+                        </div>
+                    </div>
+                    <div className="flex gap-2">
+                        <button onClick={() => { localStorage.removeItem('admin_token'); setToken(null) }} className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs text-gray-400 hover:text-red-400 hover:bg-red-500/10 transition-colors border border-transparent hover:border-red-500/20">🚪 Logout</button>
+                        <a href="/" className="px-3 py-2.5 rounded-xl bg-gray-800 text-gray-400 hover:text-white transition-colors border border-gray-700 shadow-sm" title="View Frontend">🌐</a>
+                    </div>
                 </div>
             </aside>
 
-            {/* Main */}
-            <main className="flex-1 overflow-auto">
-                <div className="sticky top-0 z-30 bg-gray-950/80 backdrop-blur border-b border-gray-800 px-8 py-3 flex items-center justify-between">
-                    <h1 className="font-semibold text-gray-200 capitalize">{tab}</h1>
-                    <div className="text-xs text-gray-600">{new Date().toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })}</div>
-                </div>
-                <div className="p-8 space-y-6">
+            {/* Main Content Area */}
+            <main className="flex-1 w-full overflow-x-hidden min-h-screen">
+                <header className="sticky top-0 z-30 bg-gray-950/80 backdrop-blur-md border-b border-gray-800/60 px-4 md:px-8 py-4 flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                        <button className="lg:hidden w-10 h-10 flex items-center justify-center bg-gray-900 border border-gray-800 rounded-xl text-xl" onClick={() => setMenuOpen(true)}>☰</button>
+                        <h1 className="font-bold text-lg md:text-xl text-white capitalize tracking-tight">{tab}</h1>
+                    </div>
+                    <div className="hidden sm:flex items-center gap-4">
+                        <div className="text-right">
+                            <p className="text-xs font-bold text-gray-300">{new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                            <p className="text-[10px] text-gray-500 uppercase font-bold tracking-widest">{new Date().toLocaleDateString('en-GB', { weekday: 'long' })}</p>
+                        </div>
+                    </div>
+                </header>
+                <div className="px-4 md:px-8 py-8 space-y-8 animate-in fade-in duration-500">
 
                     {/* ── DASHBOARD ─────────────────────────────────────────────────── */}
                     {tab === 'dashboard' && <>
@@ -203,10 +235,11 @@ export default function AdminPanel() {
                                 </div>
                             ))}
                         </div>
-                        <div className="grid grid-cols-3 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                             {[{ l: 'Users', v: stats?.users.total, i: '👥' }, { l: 'Active Services', v: stats?.services.active, i: '🔧' }, { l: 'Notifications Sent', v: stats?.notifications.sent, i: '🔔' }].map(s => (
-                                <div key={s.l} className="bg-gray-900 border border-gray-800 rounded-xl p-4 flex items-center gap-4">
-                                    <span className="text-2xl">{s.i}</span><div><p className="text-gray-500 text-xs">{s.l}</p><p className="text-xl font-bold">{s.v ?? '—'}</p></div>
+                                <div key={s.l} className="bg-gray-900/50 border border-gray-800/50 rounded-2xl p-4 flex items-center gap-5 hover:bg-gray-900 transition-colors">
+                                    <div className="w-12 h-12 rounded-2xl bg-gray-800/80 flex items-center justify-center text-2xl shadow-inner">{s.i}</div>
+                                    <div><p className="text-gray-500 text-[10px] font-bold uppercase tracking-wider">{s.l}</p><p className="text-xl font-black text-gray-100">{s.v ?? '—'}</p></div>
                                 </div>
                             ))}
                         </div>
@@ -236,9 +269,12 @@ export default function AdminPanel() {
                     {/* ── BOOKINGS ──────────────────────────────────────────────────── */}
                     {tab === 'bookings' && <>
                         <div className="flex items-center justify-between"><h2 className="text-lg font-bold">Bookings <span className="text-gray-500 font-normal">({bTotal})</span></h2><button onClick={loadBookings} className="px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-xl text-xs">🔄 Refresh</button></div>
-                        <div className="flex gap-3 flex-wrap">
-                            <input className={`${inp} flex-1 min-w-[180px]`} placeholder="Search invoice, name, address…" value={bSearch} onChange={e => { setBSearch(e.target.value); setBPage(1) }} />
-                            <select className={`${inp} w-40`} value={bStatus} onChange={e => { setBStatus(e.target.value); setBPage(1) }}>
+                        <div className="flex gap-4 flex-col sm:flex-row">
+                            <div className="relative flex-1">
+                                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500">🔍</span>
+                                <input className={`${inp} h-11 pl-10 bg-gray-900/80 hover:bg-gray-900 focus:bg-gray-900 transition-all`} placeholder="Search invoice, name, phone, address…" value={bSearch} onChange={e => { setBSearch(e.target.value); setBPage(1) }} />
+                            </div>
+                            <select className={`${inp} h-11 w-full sm:w-48 bg-gray-900/80`} value={bStatus} onChange={e => { setBStatus(e.target.value); setBPage(1) }}>
                                 <option value="">All Statuses</option>
                                 {['pending', 'confirmed', 'in_progress', 'completed', 'cancelled'].map(s => <option key={s}>{s}</option>)}
                             </select>
@@ -249,17 +285,17 @@ export default function AdminPanel() {
                                 {loading && <Empty cols={8} msg="Loading…" />}
                                 {!loading && !bookings.length && <Empty cols={8} msg="No bookings found" />}
                                 {bookings.map(b => (
-                                    <tr key={b.id} className="border-b border-gray-800/50 hover:bg-white/[0.02]">
-                                        <td className="px-4 py-3 font-mono text-teal-400">{b.invoice_number || `#${b.id}`}</td>
-                                        <td className="px-4 py-3"><div className="text-gray-100 font-medium">{b.customer_name || '—'}</div><div className="text-gray-500">{b.customer_phone}</div></td>
-                                        <td className="px-4 py-3 text-gray-300 max-w-[110px] truncate">{b.service_name || '—'}</td>
-                                        <td className="px-4 py-3 text-gray-400">{b.scheduled_date}<br />{b.scheduled_time}</td>
-                                        <td className="px-4 py-3"><Badge t={b.status} m={S_MAP} /></td>
-                                        <td className="px-4 py-3"><Badge t={b.payment_status} m={P_MAP} /></td>
-                                        <td className="px-4 py-3 font-semibold text-gray-200">{b.total_price}</td>
-                                        <td className="px-4 py-3"><div className="flex gap-1.5">
-                                            <button onClick={() => setEditB(b)} className="px-3 py-1.5 bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 rounded-lg font-medium">✏️ Edit</button>
-                                            <button onClick={() => setDel({ type: 'booking', id: b.id, msg: `Delete booking ${b.invoice_number || b.id}?` })} className="px-2.5 py-1.5 bg-red-500/20 text-red-400 hover:bg-red-500/30 rounded-lg">🗑️</button>
+                                    <tr key={b.id} className="border-b border-gray-800/40 hover:bg-white/[0.03] active:bg-white/[0.05] transition-colors cursor-pointer group" onClick={() => setViewB(b)}>
+                                        <td className="px-4 py-4 font-mono text-teal-400 font-bold">{b.invoice_number || `#${b.id}`}</td>
+                                        <td className="px-4 py-4"><div className="text-gray-100 font-bold">{b.customer_name || '—'}</div><div className="text-gray-500 text-[10px] font-medium tracking-tight mt-0.5">{b.customer_phone}</div></td>
+                                        <td className="px-4 py-4 text-gray-300 max-w-[160px] truncate font-medium">{b.service_name || '—'}</td>
+                                        <td className="px-4 py-4 text-gray-400 tabular-nums font-medium">{b.scheduled_date}<br /><span className="text-[10px] text-gray-500 uppercase">{b.scheduled_time}</span></td>
+                                        <td className="px-4 py-4"><Badge t={b.status} m={S_MAP} /></td>
+                                        <td className="px-4 py-4 text-gray-200 font-bold tabular-nums tracking-tighter">{parseFloat(b.total_price || '0').toFixed(2)}</td>
+                                        <td className="px-4 py-4" onClick={e => e.stopPropagation()}><div className="flex gap-2">
+                                            <button onClick={() => setViewB(b)} className="px-3 py-2 bg-gray-800 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg font-bold text-[10px] uppercase tracking-wider shadow-sm transition-all border border-gray-700/50">Details</button>
+                                            <button onClick={() => setEditB(b)} className="p-2 bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 border border-blue-500/10 rounded-lg transition-colors" title="Edit">✏️</button>
+                                            <button onClick={() => setDel({ type: 'booking', id: b.id, msg: `Delete booking ${b.invoice_number || b.id}?` })} className="p-2 bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/10 rounded-lg transition-colors">🗑️</button>
                                         </div></td>
                                     </tr>
                                 ))}
@@ -416,6 +452,7 @@ export default function AdminPanel() {
             </main>
 
             {/* ── Modals ── */}
+            {viewB && <ViewBookingModal b={viewB} onClose={() => setViewB(null)} onEdit={() => { setViewB(null); setEditB(viewB) }} />}
             {editB && <BModal b={editB} onClose={() => setEditB(null)} onSave={saveBooking} />}
             {(editS || newSvc) && <SModal s={editS} onClose={() => { setEditS(null); setNewSvc(false) }} onSave={saveService} />}
             {editU && <UModal u={editU} onClose={() => setEditU(null)} onSave={saveUser} />}
@@ -490,4 +527,105 @@ function UModal({ u, onClose, onSave }: { u: User; onClose: () => void; onSave: 
             <button onClick={() => onSave(f)} className="px-5 py-2 bg-teal-600 text-white rounded-xl text-sm font-semibold hover:bg-teal-700">Save Changes</button>
         </div>
     </Modal>
+}
+// ── View Booking Detail Modal ───────────────────────────────────────────────
+function ViewBookingModal({ b, onClose, onEdit }: { b: Booking; onClose: () => void; onEdit: () => void }) {
+    const handleDownload = async () => {
+        try {
+            const tk = localStorage.getItem('admin_token')
+            const r = await axios({
+                url: `${BACKEND}/api/bookings/${b.id}/invoice/`,
+                method: 'GET',
+                responseType: 'blob',
+                headers: { Authorization: `Bearer ${tk}` }
+            })
+            const url = window.URL.createObjectURL(new Blob([r.data]))
+            const link = document.createElement('a')
+            link.href = url
+            link.setAttribute('download', `invoice-${b.invoice_number || b.id}.pdf`)
+            document.body.appendChild(link)
+            link.click()
+            link.remove()
+        } catch (ex) { alert('Invoice generation failed.') }
+    }
+
+    return (
+        <Modal title={`Booking Detail — ${b.invoice_number || `#${b.id}`}`} onClose={onClose}>
+            <div className="space-y-8 py-2">
+                {/* Header Stats */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-gray-50 border border-gray-200 rounded-2xl">
+                    <div><p className="text-[10px] text-gray-500 uppercase font-bold tracking-wider mb-1">Status</p><Badge t={b.status} m={S_MAP} /></div>
+                    <div><p className="text-[10px] text-gray-500 uppercase font-bold tracking-wider mb-1">Payment</p><Badge t={b.payment_status} m={P_MAP} /></div>
+                    <div><p className="text-[10px] text-gray-500 uppercase font-bold tracking-wider mb-1">Amount</p><p className="font-bold text-gray-900 tabular-nums">{b.total_price} SAR</p></div>
+                    <div><p className="text-[10px] text-gray-500 uppercase font-bold tracking-wider mb-1">Invoice</p><p className="font-mono text-teal-600 font-bold">{b.invoice_number}</p></div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
+                    {/* Customer */}
+                    <div className="space-y-4">
+                        <h4 className="font-bold text-teal-600 text-xs uppercase tracking-widest flex items-center gap-2">
+                            <span className="w-6 h-6 rounded-full bg-teal-50 flex items-center justify-center">👤</span> Customer Details
+                        </h4>
+                        <div className="space-y-3 pl-2">
+                            <div><p className="text-[10px] text-gray-400 font-bold uppercase mb-0.5">Name</p><p className="font-bold text-gray-900">{b.customer_name}</p></div>
+                            <div><p className="text-[10px] text-gray-400 font-bold uppercase mb-0.5">Phone</p><p className="font-medium text-gray-800 tabular-nums">{b.customer_phone}</p></div>
+                        </div>
+                    </div>
+
+                    {/* Schedule */}
+                    <div className="space-y-4">
+                        <h4 className="font-bold text-blue-600 text-xs uppercase tracking-widest flex items-center gap-2">
+                            <span className="w-6 h-6 rounded-full bg-blue-50 flex items-center justify-center">🕒</span> Schedule
+                        </h4>
+                        <div className="space-y-3 pl-2">
+                            <div><p className="text-[10px] text-gray-400 font-bold uppercase mb-0.5">Date</p><p className="font-bold text-gray-900">{b.scheduled_date}</p></div>
+                            <div><p className="text-[10px] text-gray-400 font-bold uppercase mb-0.5">Time Slot</p><p className="font-bold text-gray-900 uppercase">{b.scheduled_time}</p></div>
+                        </div>
+                    </div>
+
+                    {/* Service & Location */}
+                    <div className="md:col-span-2 space-y-6 pt-4 border-t border-gray-100">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div className="space-y-3">
+                                <h4 className="font-bold text-gray-400 text-[10px] uppercase tracking-widest">Service Requested</h4>
+                                <div className="p-4 bg-teal-500/5 border border-teal-500/10 rounded-2xl">
+                                    <p className="font-black text-teal-700 text-lg">{b.service_name}</p>
+                                </div>
+                            </div>
+                            <div className="space-y-3">
+                                <h4 className="font-bold text-gray-400 text-[10px] uppercase tracking-widest">Job Location</h4>
+                                <p className="text-gray-800 leading-relaxed font-medium">
+                                    🏠 {b.address_street},<br />
+                                    <span className="font-bold">{b.address_city}</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Notes */}
+                    <div className="md:col-span-2 space-y-3 pt-4 border-t border-gray-100">
+                        <h4 className="font-bold text-gray-400 text-[10px] uppercase tracking-widest">Internal Notes / Instructions</h4>
+                        <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl italic text-gray-600 text-sm min-h-[80px]">
+                            {b.notes || 'No notes provided for this booking.'}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Footer Actions */}
+                <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-100">
+                    <button onClick={handleDownload} className="flex-1 bg-gray-900 text-white font-black py-4 rounded-2xl hover:bg-gray-800 transition-all flex items-center justify-center gap-2 shadow-xl shadow-gray-950/20 active:scale-95">
+                        📥 Download PDF Invoice
+                    </button>
+                    <div className="flex gap-3 shrink-0">
+                        <button onClick={onEdit} className="px-8 py-4 bg-blue-600 text-white font-bold rounded-2xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20 active:scale-95">
+                            ✏️ Edit
+                        </button>
+                        <button onClick={onClose} className="px-6 py-4 bg-gray-100 text-gray-500 font-bold rounded-2xl hover:bg-gray-200 transition-all active:scale-95">
+                            Close
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </Modal>
+    )
 }
